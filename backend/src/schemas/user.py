@@ -1,36 +1,45 @@
+from pydantic import BaseModel, EmailStr, validator
+from typing import Optional
 from uuid import UUID
 from datetime import datetime
-from typing import Optional
-
-from pydantic import BaseModel, EmailStr, Field
-
 
 class UserBase(BaseModel):
-    email: EmailStr
     name: str
-
+    email: EmailStr
 
 class UserCreate(UserBase):
-    password: str = Field(..., min_length=8)
+    password: str
+    
+    @validator('password')
+    def password_strength(cls, v):
+        if len(v) < 8:
+            raise ValueError('Password must be at least 8 characters long')
+        return v
 
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
 
 class UserUpdate(BaseModel):
-    email: Optional[EmailStr] = None
     name: Optional[str] = None
-    password: Optional[str] = None
+    email: Optional[EmailStr] = None
+    current_password: str
+    new_password: Optional[str] = None
+    
+    @validator('new_password')
+    def password_strength(cls, v):
+        if v is not None and len(v) < 8:
+            raise ValueError('New password must be at least 8 characters long')
+        return v
 
-
-class UserInDBBase(UserBase):
+class UserResponse(UserBase):
     id: UUID
-    created_at: datetime
-    updated_at: datetime
+    
+    class Config:
+        orm_mode = True
 
-    model_config = {"from_attributes": True}
-
-
-class User(UserInDBBase):
-    pass
-
-
-class UserInDB(UserInDBBase):
-    password_hash: str
+class TokenResponse(BaseModel):
+    id: UUID
+    name: str
+    email: EmailStr
+    token: str

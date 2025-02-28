@@ -1,6 +1,6 @@
 import os
 from functools import lru_cache
-from typing import Optional, Any
+from typing import List, Optional, Any
 from pydantic import PostgresDsn, field_validator
 from pydantic_settings import BaseSettings
 
@@ -15,13 +15,6 @@ class Settings(BaseSettings):
     POSTGRES_DB: str = os.getenv("POSTGRES_DB", "weightlifting_app")
     POSTGRES_PORT: str = os.getenv("POSTGRES_PORT", "5432")
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
-
-    print(f"SQLALCHEMY_DATABASE_URI: {SQLALCHEMY_DATABASE_URI}")
-    print(f"POSTGRES_SERVER: {POSTGRES_SERVER}")
-    print(f"POSTGRES_USER: {POSTGRES_USER}")
-    print(f"POSTGRES_PASSWORD: {POSTGRES_PASSWORD}")
-    print(f"POSTGRES_DB: {POSTGRES_DB}")
-    print(f"POSTGRES_PORT: {POSTGRES_PORT}")
 
     @field_validator("SQLALCHEMY_DATABASE_URI", mode="before")
     def assemble_db_connection(cls, v: Optional[str], info) -> Any:
@@ -45,6 +38,10 @@ class Settings(BaseSettings):
 
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-here-for-development-only")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
+    ALGORITHM: str = "HS256"
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/weightlifting_app")
+
+    BACKEND_CORS_ORIGINS: List[str] = ["*"]
     
     model_config = {
         "case_sensitive": True,
@@ -54,3 +51,7 @@ class Settings(BaseSettings):
 @lru_cache()
 def get_settings() -> Settings:
     return Settings()
+
+
+# Export a module-level settings variable for convenience.
+settings = get_settings()

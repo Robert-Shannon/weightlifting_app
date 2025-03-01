@@ -119,3 +119,11 @@ class SessionListResponse(BaseModel):
 class SupersetCreate(BaseModel):
     exercise_ids: List[UUID]
     orders: List[int]
+
+# Updated to return exercise objects with attributes
+class SupersetResponse(BaseModel):
+    superset_group_id: str
+    exercises: List[Dict[str, Any]]
+    
+    class Config:
+        from_attributes = True

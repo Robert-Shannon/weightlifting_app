@@ -158,16 +158,29 @@ def test_session_exercise(db, test_session, test_exercise):
     
     return session_exercise
 
-def test_read_sessions(client, db, test_user, test_session):
+def test_read_sessions(client, db, test_user):
     """Test listing workout sessions"""
-    # Create a second session for testing
-    second_session = WorkoutSession(
+    # Create sessions with specific dates for more reliable testing
+    today = datetime.utcnow()
+    yesterday = today - timedelta(days=1)
+    
+    # Today's session
+    today_session = WorkoutSession(
         id=uuid.uuid4(),
         user_id=test_user["user"].id,
-        name="Second Workout Session",
-        started_at=datetime.utcnow() - timedelta(days=1)  # Yesterday
+        name="Today Session",
+        started_at=today
     )
-    db.add(second_session)
+    db.add(today_session)
+    
+    # Yesterday's session
+    yesterday_session = WorkoutSession(
+        id=uuid.uuid4(),
+        user_id=test_user["user"].id,
+        name="Yesterday Session",
+        started_at=yesterday
+    )
+    db.add(yesterday_session)
     db.commit()
     
     # List all sessions
@@ -180,17 +193,29 @@ def test_read_sessions(client, db, test_user, test_session):
     data = response.json()
     assert len(data) == 2
     
-    # Test filtering by date
-    today = datetime.now().date().isoformat()
+    # Test filtering by today's date
+    today_date = today.date().isoformat()
     response = client.get(
-        f"/api/v1/sessions/?start_date={today}",
+        f"/api/v1/sessions/?start_date={today_date}",
         headers={"Authorization": f"Bearer {test_user['token']}"}
     )
     
     assert response.status_code == 200
     data = response.json()
-    assert len(data) == 1
-    assert data[0]["name"] == "Test Workout Session"
+    assert len(data) == 1  # Only today's session
+    assert data[0]["name"] == "Today Session"
+    
+    # Test filtering by yesterday's date
+    yesterday_date = yesterday.date().isoformat()
+    response = client.get(
+        f"/api/v1/sessions/?start_date={yesterday_date}&end_date={yesterday_date}",
+        headers={"Authorization": f"Bearer {test_user['token']}"}
+    )
+    
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1  # Only yesterday's session
+    assert data[0]["name"] == "Yesterday Session"
 
 def test_create_session(client, test_user, test_template):
     """Test creating a new workout session"""

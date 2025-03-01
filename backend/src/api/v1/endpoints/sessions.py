@@ -16,7 +16,8 @@ from src.schemas.session import (
     SessionSetCreate,
     SessionSetUpdate,
     SessionSetResponse,
-    SupersetCreate
+    SupersetCreate,
+    SupersetResponse
 )
 from src.services.session_services import (
     get_sessions,
@@ -59,8 +60,16 @@ def read_sessions(
     - **limit**: Maximum number of items to return
     """
     # Convert dates to datetime objects if provided
-    start_datetime = datetime.combine(start_date, datetime.min.time()) if start_date else None
-    end_datetime = datetime.combine(end_date, datetime.max.time()) if end_date else None
+    start_datetime = None
+    end_datetime = None
+    
+    if start_date:
+        # Convert to datetime with time at start of day (00:00:00)
+        start_datetime = datetime.combine(start_date, datetime.min.time())
+    
+    if end_date:
+        # Convert to datetime with time at end of day (23:59:59)
+        end_datetime = datetime.combine(end_date, datetime.max.time())
     
     sessions = get_sessions(
         db, 
@@ -240,8 +249,8 @@ def end_rest_timer(
     """
     return end_rest(db, str(session_id), str(exercise_id), str(set_id), str(current_user.id))
 
-@router.post("/{session_id}/supersets", response_model=dict)
-def create_superset_group(
+@router.post("/{session_id}/supersets", response_model=SupersetResponse)
+def create_superset_endpoint(
     session_id: UUID,
     superset_data: SupersetCreate,
     db: Session = Depends(get_db),

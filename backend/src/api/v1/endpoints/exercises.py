@@ -21,27 +21,31 @@ router = APIRouter()
 
 @router.get("/", response_model=List[ExerciseResponse])
 def read_exercises(
+    name: Optional[str] = Query(None, description="Filter by exercise name"),
     target_muscle_group: Optional[str] = Query(None, description="Filter by target muscle group"),
     difficulty_level: Optional[str] = Query(None, description="Filter by difficulty level"),
     equipment: Optional[str] = Query(None, description="Filter by equipment type"),
     body_region: Optional[str] = Query(None, description="Filter by body region"),
     force_type: Optional[str] = Query(None, description="Filter by force type"),
     mechanics: Optional[str] = Query(None, description="Filter by mechanics"),
+    primary_exercise_classification: Optional[str] = Query(None, description="Filter by primary exercise classification"),
     skip: int = Query(0, ge=0, description="Skip N items"),
     limit: int = Query(100, ge=1, le=100, description="Limit to N items"),
     db: Session = Depends(get_db)
 ):
     """
     Get a list of exercises with optional filtering.
-    Supports filtering by target muscle group, difficulty level, equipment, etc.
+    Supports filtering by name,target muscle group, difficulty level, equipment, etc.
     """
     filters = ExerciseFilter(
+        name=name,
         target_muscle_group=target_muscle_group,
         difficulty_level=difficulty_level,
         equipment=equipment,
         body_region=body_region,
         force_type=force_type,
-        mechanics=mechanics
+        mechanics=mechanics,
+        primary_exercise_classification=primary_exercise_classification
     )
     
     exercises = get_exercises(db, skip=skip, limit=limit, filters=filters)

@@ -645,12 +645,15 @@ def create_superset(db: Session, session_id: str, user_id: str, superset_data: S
         session_exercise.updated_at = datetime.utcnow()
         
         db.add(session_exercise)
-        updated_exercises.append(session_exercise)
+        
+        # Add exercise details with attributes to the list
+        updated_exercises.append({
+            "id": str(exercise_id),
+            "superset_group_id": superset_group_id,
+            "superset_order": superset_data.orders[i]
+        })
     
     db.commit()
     
-    # Refresh exercises
-    for exercise in updated_exercises:
-        db.refresh(exercise)
-    
+    # Return response with exercise objects that include superset_order attribute
     return {"superset_group_id": superset_group_id, "exercises": updated_exercises}

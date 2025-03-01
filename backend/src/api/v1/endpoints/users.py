@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
+from typing import List
 
 from src.core.database.session import get_db
 from src.models.user import User
@@ -10,19 +11,15 @@ from src.utils.dependencies import get_current_user
 
 router = APIRouter()
 
-@router.post("/", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
-def create_new_user(user_data: UserCreate, db: Session = Depends(get_db)):
+@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
     """
     Register a new user with name, email, and password.
     Returns user details with an authentication token.
     """
-    # Create the user
     user = create_user(db, user_data)
-    
-    # Generate a token
     token = create_access_token(str(user.id))
     
-    # Return user with token
     return {
         "id": user.id,
         "name": user.name,
@@ -36,10 +33,8 @@ def login_user(user_data: UserLogin, db: Session = Depends(get_db)):
     Authenticate a user with email and password.
     Returns user details with an authentication token.
     """
-    # Authenticate the user
     user = authenticate_user(db, user_data.email, user_data.password)
     
-    # If authentication failed
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -47,10 +42,8 @@ def login_user(user_data: UserLogin, db: Session = Depends(get_db)):
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # Generate a token
     token = create_access_token(str(user.id))
     
-    # Return user with token
     return {
         "id": user.id,
         "name": user.name,
@@ -59,7 +52,7 @@ def login_user(user_data: UserLogin, db: Session = Depends(get_db)):
     }
 
 @router.get("/me", response_model=UserResponse)
-def read_user_me(current_user: User = Depends(get_current_user)):
+def get_current_user_profile(current_user: User = Depends(get_current_user)):
     """
     Get the current authenticated user's profile.
     Requires authentication.
@@ -67,7 +60,7 @@ def read_user_me(current_user: User = Depends(get_current_user)):
     return current_user
 
 @router.put("/me", response_model=UserResponse)
-def update_user_me(
+def update_current_user(
     user_data: UserUpdate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -79,10 +72,10 @@ def update_user_me(
     updated_user = update_user(db, str(current_user.id), user_data)
     return updated_user
 
-@router.get("/", response_model=list[UserResponse])
-def read_users(
-    skip: int = 0,
-    limit: int = 100,
+@router.get("/", response_model=List[UserResponse])
+def list_all_users(
+    skip: int = Query(0, ge=0, description="Skip N users"),
+    limit: int = Query(100, ge=1, le=100, description="Limit to N users"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):

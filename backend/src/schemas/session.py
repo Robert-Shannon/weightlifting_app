@@ -68,8 +68,9 @@ class SessionSetResponse(BaseModel):
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     
-    class Config:
-        from_attributes = True
+    model_config = {
+        "from_attributes": True
+    }
 
 class SessionExerciseResponse(BaseModel):
     id: UUID
@@ -87,8 +88,9 @@ class SessionExerciseResponse(BaseModel):
     exercise_name: Optional[str] = None
     target_muscle_group: Optional[str] = None
     
-    class Config:
-        from_attributes = True
+    model_config = {
+        "from_attributes": True
+    }
 
 class SessionResponse(SessionBase):
     id: UUID
@@ -101,8 +103,9 @@ class SessionResponse(SessionBase):
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     
-    class Config:
-        from_attributes = True
+    model_config = {
+        "from_attributes": True
+    }
 
 class SessionListResponse(BaseModel):
     id: UUID
@@ -112,8 +115,9 @@ class SessionListResponse(BaseModel):
     duration: Optional[int] = None
     exercise_count: int
     
-    class Config:
-        from_attributes = True
+    model_config = {
+        "from_attributes": True
+    }
 
 # Superset schemas
 class SupersetCreate(BaseModel):
@@ -125,5 +129,6 @@ class SupersetResponse(BaseModel):
     superset_group_id: str
     exercises: List[Dict[str, Any]]
     
-    class Config:
-        from_attributes = True
+    model_config = {
+        "from_attributes": True
+    }

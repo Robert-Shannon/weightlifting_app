@@ -4,7 +4,16 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "alembic>=1.14.1",
+    "bcrypt==4.0.1",
+    "black>=25.1.0",
+    "fastapi>=0.115.10",
+    "isort>=6.0.1",
+    "mypy>=1.15.0",
+    "pydantic>=2.10.6",
+    "python-multipart>=0.0.20",
+]
 
 [build-system]
 requires = ["setuptools>=42", "wheel"]
@@ -30,6 +39,9 @@ testpaths = ["tests"]
 python_files = "test_*.py"
 python_functions = "test_*"
 python_classes = "Test*"
+filterwarnings = [
+    "ignore::DeprecationWarning:passlib.utils.*"
+]
 
 [tool.pylint.messages_control]
 disable = "C0111, C0103"

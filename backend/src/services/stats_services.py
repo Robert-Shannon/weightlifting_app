@@ -110,11 +110,13 @@ def get_exercise_progress(db: Session, user_id: str, exercise_id: str, filter: E
     # First pass to get dates and organize sets by session
     for set_data in exercise_sets:
         # Get session data through relationships
-        session_exercise = db.query(WorkoutSessionExercise).get(set_data.workout_session_exercise_id)
+        # UPDATED: Use db.get() instead of query().get()
+        session_exercise = db.get(WorkoutSessionExercise, set_data.workout_session_exercise_id)
         if not session_exercise:
             continue
             
-        session = db.query(WorkoutSession).get(session_exercise.workout_session_id)
+        # UPDATED: Use db.get() instead of query().get()
+        session = db.get(WorkoutSession, session_exercise.workout_session_id)
         if not session or not session.started_at:
             continue
             
@@ -388,11 +390,13 @@ def get_personal_records(db: Session, user_id: str, filter: StatsTimeRangeFilter
             pr_set = max(sets, key=lambda s: s.weight)
             
             # Get session details for date
-            session_exercise = db.query(WorkoutSessionExercise).get(pr_set.workout_session_exercise_id)
+            # UPDATED: Use db.get() instead of query().get()
+            session_exercise = db.get(WorkoutSessionExercise, pr_set.workout_session_exercise_id)
             if not session_exercise:
                 continue
                 
-            session = db.query(WorkoutSession).get(session_exercise.workout_session_id)
+            # UPDATED: Use db.get() instead of query().get()
+            session = db.get(WorkoutSession, session_exercise.workout_session_id)
             if not session or not session.completed_at:
                 continue
             

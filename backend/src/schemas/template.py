@@ -55,9 +55,10 @@ class TemplateSetResponse(TemplateSetBase):
     is_superset_last_exercise: Optional[bool] = False
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
-
-    class Config:
-        from_attributes = True
+    
+    model_config = {
+        "from_attributes": True
+    }
 
 class TemplateExerciseResponse(TemplateExerciseBase):
     id: UUID
@@ -68,9 +69,10 @@ class TemplateExerciseResponse(TemplateExerciseBase):
     target_muscle_group: Optional[str] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
-
-    class Config:
-        from_attributes = True
+    
+    model_config = {
+        "from_attributes": True
+    }
 
 class TemplateResponse(TemplateBase):
     id: UUID
@@ -78,18 +80,20 @@ class TemplateResponse(TemplateBase):
     exercises: List[TemplateExerciseResponse] = []
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
-
-    class Config:
-        from_attributes = True
+    
+    model_config = {
+        "from_attributes": True
+    }
 
 class TemplateListResponse(BaseModel):
     id: UUID
     name: str
     description: Optional[str] = None
     exercise_count: int
-
-    class Config:
-        from_attributes = True
+    
+    model_config = {
+        "from_attributes": True
+    }
 
 # Superset schemas
 class TemplateSuperset(BaseModel):
@@ -99,6 +103,7 @@ class TemplateSuperset(BaseModel):
 class SupersetResponse(BaseModel):
     superset_group_id: str
     exercises: List[Dict[str, Any]]
-
-    class Config:
-        from_attributes = True
+    
+    model_config = {
+        "from_attributes": True
+    }

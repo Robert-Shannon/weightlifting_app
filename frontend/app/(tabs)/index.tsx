@@ -1,4 +1,4 @@
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
@@ -10,7 +10,6 @@ import {
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/context/AuthContext';
 import { useWorkout } from '@/context/WorkoutContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -21,6 +20,8 @@ export default function HomeScreen() {
   const { user } = useAuth();
   const { startWorkout } = useWorkout();
   const colorScheme = useColorScheme() ?? 'light';
+  const tintColor = useThemeColor({}, 'tint');
+  const textColor = useThemeColor({}, 'text');
   
   const [recentWorkouts, setRecentWorkouts] = useState<WorkoutSession[]>([]);
   const [isLoadingWorkouts, setIsLoadingWorkouts] = useState(true);
@@ -82,7 +83,7 @@ export default function HomeScreen() {
 
       <ThemedView style={styles.quickActions}>
         <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: useThemeColor({}, 'tint') }]}
+          style={[styles.actionButton, { backgroundColor: tintColor }]}
           onPress={handleQuickStart}>
           <IconSymbol name="play.fill" color="white" size={20} />
           <ThemedText style={styles.actionButtonText}>Quick Start</ThemedText>
@@ -107,7 +108,7 @@ export default function HomeScreen() {
         <ThemedText type="subtitle">Recent Workouts</ThemedText>
         
         {isLoadingWorkouts ? (
-          <ActivityIndicator size="large" color={useThemeColor({}, 'tint')} style={styles.loader} />
+          <ActivityIndicator size="large" color={tintColor} style={styles.loader} />
         ) : recentWorkouts.length > 0 ? (
           <FlatList
             data={recentWorkouts}
@@ -115,7 +116,7 @@ export default function HomeScreen() {
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.workoutCard}
-                onPress={() => router.push(`/history/${item.id}` as any)}>
+                onPress={() => router.push({pathname: `/history/[id]`, params: {id: item.id}})}>
                 <ThemedView style={styles.workoutCardContent}>
                   <ThemedText style={styles.workoutName}>{item.name}</ThemedText>
                   <ThemedText style={styles.workoutDate}>{formatDate(item.started_at)}</ThemedText>
@@ -123,7 +124,7 @@ export default function HomeScreen() {
                 
                 {item.duration && (
                   <ThemedView style={styles.durationBadge}>
-                    <IconSymbol name="timer" size={14} color={useThemeColor({}, 'text')} />
+                    <IconSymbol name="timer" size={14} color={textColor} />
                     <ThemedText style={styles.durationText}>
                       {formatDuration(item.duration)}
                     </ThemedText>
@@ -137,7 +138,7 @@ export default function HomeScreen() {
           <ThemedView style={styles.emptyState}>
             <ThemedText style={styles.emptyStateText}>No recent workouts</ThemedText>
             <TouchableOpacity 
-              style={styles.startWorkoutButton}
+              style={[styles.startWorkoutButton, { backgroundColor: tintColor }]}
               onPress={() => router.push('/start-workout')}>
               <ThemedText style={styles.startWorkoutButtonText}>Start Your First Workout</ThemedText>
             </TouchableOpacity>
@@ -238,7 +239,6 @@ const styles = StyleSheet.create({
   },
   startWorkoutButton: {
     padding: 12,
-    backgroundColor: useThemeColor({}, 'tint'),
     borderRadius: 8,
   },
   startWorkoutButtonText: {

@@ -10,6 +10,8 @@ import { config } from '../config';
 // Use the API base URL from config
 const API_BASE_URL = config.API_BASE_URL;
 
+
+
 // Log the API URL for debugging
 console.log('API URL:', API_BASE_URL);
 

@@ -1,0 +1,6457 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+
+Additional Info:
+----------------
+
+================================================================
+Directory Structure
+================================================================
+app/
+  (auth)/
+    _layout.tsx
+    login.tsx
+    register.tsx
+  (tabs)/
+    progress/
+      index.tsx
+      muscles.tsx
+      records.tsx
+    templates/
+      [id].tsx
+      create.tsx
+      index.tsx
+    _layout.tsx
+    active-workout.tsx
+    explore.tsx
+    index.tsx
+    start-workout.tsx
+  history/
+    [id].tsx
+  _layout.tsx
+  +not-found.tsx
+  index.tsx
+components/
+  __tests__/
+    __snapshots__/
+      ThemedText-test.tsx.snap
+    ThemedText-test.tsx
+  ui/
+    IconSymbol.ios.tsx
+    IconSymbol.tsx
+    TabBarBackground.ios.tsx
+    TabBarBackground.tsx
+  Collapsible.tsx
+  ExternalLink.tsx
+  HapticTab.tsx
+  HelloWave.tsx
+  ParallaxScrollView.tsx
+  ThemedText.tsx
+  ThemedView.tsx
+constants/
+  Colors.ts
+context/
+  AuthContext.tsx
+  WorkoutContext.tsx
+hooks/
+  useColorScheme.ts
+  useColorScheme.web.ts
+  useThemeColor.ts
+scripts/
+  reset-project.js
+services/
+  api.ts
+  auth.service.ts
+  exercise.service.ts
+  progress.service.ts
+  template.service.ts
+  workout.service.ts
+.gitignore
+app.json
+package.json
+README.md
+tsconfig.json
+
+================================================================
+Files
+================================================================
+
+================
+File: app/(auth)/_layout.tsx
+================
+import { Stack } from 'expo-router';
+import React from 'react';
+
+export default function AuthLayout() {
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="login" />
+      <Stack.Screen name="register" />
+    </Stack>
+  );
+}
+
+================
+File: app/(auth)/login.tsx
+================
+import { Link } from 'expo-router';
+import React, { useState } from 'react';
+import { StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+
+import { useAuth } from '@/context/AuthContext';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+
+export default function LoginScreen() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const { login, isLoading } = useAuth();
+  const colorScheme = useColorScheme() ?? 'light';
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      alert('Please enter both email and password');
+      return;
+    }
+
+    try {
+      await login({ email, password });
+    } catch (error) {
+      // Error is handled in the auth context
+    }
+  };
+
+  return (
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ThemedView style={styles.container}>
+        <ThemedView style={styles.logoContainer}>
+          <ThemedText type="title">Lift Tracker</ThemedText>
+          <ThemedText style={styles.subtitle}>Track your fitness journey</ThemedText>
+        </ThemedView>
+        
+        <ThemedView style={styles.formContainer}>
+          <TextInput
+            style={[
+              styles.input,
+              { 
+                backgroundColor: colorScheme === 'dark' ? '#333' : '#f5f5f5',
+                color: colorScheme === 'dark' ? '#fff' : '#000'
+              }
+            ]}
+            placeholder="Email"
+            placeholderTextColor={colorScheme === 'dark' ? '#aaa' : '#777'}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
+          />
+          
+          <TextInput
+            style={[
+              styles.input,
+              { 
+                backgroundColor: colorScheme === 'dark' ? '#333' : '#f5f5f5',
+                color: colorScheme === 'dark' ? '#fff' : '#000'
+              }
+            ]}
+            placeholder="Password"
+            placeholderTextColor={colorScheme === 'dark' ? '#aaa' : '#777'}
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+          
+          <TouchableOpacity
+            style={[styles.button, { opacity: isLoading ? 0.7 : 1 }]}
+            onPress={handleLogin}
+            disabled={isLoading}>
+            <ThemedText style={styles.buttonText}>
+              {isLoading ? 'Logging in...' : 'Login'}
+            </ThemedText>
+          </TouchableOpacity>
+          
+          <ThemedView style={styles.registerContainer}>
+            <ThemedText>Don't have an account? </ThemedText>
+            <Link href="/register" asChild>
+              <TouchableOpacity>
+                <ThemedText style={styles.registerText}>Register</ThemedText>
+              </TouchableOpacity>
+            </Link>
+          </ThemedView>
+        </ThemedView>
+      </ThemedView>
+    </KeyboardAvoidingView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 20,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  subtitle: {
+    fontSize: 16,
+    marginTop: 8,
+  },
+  formContainer: {
+    width: '100%',
+  },
+  input: {
+    width: '100%',
+    height: 50,
+    borderRadius: 5,
+    marginBottom: 15,
+    paddingHorizontal: 15,
+  },
+  button: {
+    backgroundColor: Colors.light.tint,
+    height: 50,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  registerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  registerText: {
+    color: Colors.light.tint,
+    fontWeight: 'bold',
+  },
+});
+
+================
+File: app/(auth)/register.tsx
+================
+import { Link } from 'expo-router';
+import React, { useState } from 'react';
+import { StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+
+import { useAuth } from '@/context/AuthContext';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+
+export default function RegisterScreen() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const { register, isLoading } = useAuth();
+  const colorScheme = useColorScheme() ?? 'light';
+
+  const handleRegister = async () => {
+    if (!name || !email || !password || !confirmPassword) {
+      alert('Please fill in all fields');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert('Passwords do not match');
+      return;
+    }
+
+    try {
+      await register({ name, email, password });
+    } catch (error) {
+      // Error is handled in the auth context
+    }
+  };
+
+  return (
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ThemedView style={styles.container}>
+        <ThemedView style={styles.logoContainer}>
+          <ThemedText type="title">Create Account</ThemedText>
+          <ThemedText style={styles.subtitle}>Join Lift Tracker today</ThemedText>
+        </ThemedView>
+        
+        <ThemedView style={styles.formContainer}>
+          <TextInput
+            style={[
+              styles.input,
+              { 
+                backgroundColor: colorScheme === 'dark' ? '#333' : '#f5f5f5',
+                color: colorScheme === 'dark' ? '#fff' : '#000'
+              }
+            ]}
+            placeholder="Full Name"
+            placeholderTextColor={colorScheme === 'dark' ? '#aaa' : '#777'}
+            value={name}
+            onChangeText={setName}
+          />
+          
+          <TextInput
+            style={[
+              styles.input,
+              { 
+                backgroundColor: colorScheme === 'dark' ? '#333' : '#f5f5f5',
+                color: colorScheme === 'dark' ? '#fff' : '#000'
+              }
+            ]}
+            placeholder="Email"
+            placeholderTextColor={colorScheme === 'dark' ? '#aaa' : '#777'}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
+          />
+          
+          <TextInput
+            style={[
+              styles.input,
+              { 
+                backgroundColor: colorScheme === 'dark' ? '#333' : '#f5f5f5',
+                color: colorScheme === 'dark' ? '#fff' : '#000'
+              }
+            ]}
+            placeholder="Password"
+            placeholderTextColor={colorScheme === 'dark' ? '#aaa' : '#777'}
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+          
+          <TextInput
+            style={[
+              styles.input,
+              { 
+                backgroundColor: colorScheme === 'dark' ? '#333' : '#f5f5f5',
+                color: colorScheme === 'dark' ? '#fff' : '#000'
+              }
+            ]}
+            placeholder="Confirm Password"
+            placeholderTextColor={colorScheme === 'dark' ? '#aaa' : '#777'}
+            secureTextEntry
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+          />
+          
+          <TouchableOpacity
+            style={[styles.button, { opacity: isLoading ? 0.7 : 1 }]}
+            onPress={handleRegister}
+            disabled={isLoading}>
+            <ThemedText style={styles.buttonText}>
+              {isLoading ? 'Creating Account...' : 'Register'}
+            </ThemedText>
+          </TouchableOpacity>
+          
+          <ThemedView style={styles.loginContainer}>
+            <ThemedText>Already have an account? </ThemedText>
+            <Link href="/login" asChild>
+              <TouchableOpacity>
+                <ThemedText style={styles.loginText}>Login</ThemedText>
+              </TouchableOpacity>
+            </Link>
+          </ThemedView>
+        </ThemedView>
+      </ThemedView>
+    </KeyboardAvoidingView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 20,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  subtitle: {
+    fontSize: 16,
+    marginTop: 8,
+  },
+  formContainer: {
+    width: '100%',
+  },
+  input: {
+    width: '100%',
+    height: 50,
+    borderRadius: 5,
+    marginBottom: 15,
+    paddingHorizontal: 15,
+  },
+  button: {
+    backgroundColor: Colors.light.tint,
+    height: 50,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  loginContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  loginText: {
+    color: Colors.light.tint,
+    fontWeight: 'bold',
+  },
+});
+
+================
+File: app/(tabs)/progress/index.tsx
+================
+import { router } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+  Dimensions,
+} from 'react-native';
+import { LineChart } from 'react-native-chart-kit';
+
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import {
+  progressService,
+  WorkoutOverview,
+  TrendPoint,
+  PersonalRecord,
+  MuscleGroupActivity,
+} from '@/services/progress.service';
+
+const screenWidth = Dimensions.get('window').width;
+
+export default function ProgressScreen() {
+  const colorScheme = useColorScheme() ?? 'light';
+  const [overview, setOverview] = useState<WorkoutOverview | null>(null);
+  const [volumeTrend, setVolumeTrend] = useState<TrendPoint[]>([]);
+  const [personalRecords, setPersonalRecords] = useState<PersonalRecord[]>([]);
+  const [muscleGroups, setMuscleGroups] = useState<MuscleGroupActivity[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('month');
+
+  useEffect(() => {
+    fetchProgressData();
+  }, [selectedPeriod]);
+
+  const fetchProgressData = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Get date range based on selected period
+      const endDate = new Date();
+      const startDate = new Date();
+      
+      if (selectedPeriod === 'week') {
+        startDate.setDate(startDate.getDate() - 7);
+      } else if (selectedPeriod === 'month') {
+        startDate.setMonth(startDate.getMonth() - 1);
+      } else {
+        startDate.setFullYear(startDate.getFullYear() - 1);
+      }
+      
+      const dateParams = {
+        start_date: startDate.toISOString().split('T')[0],
+        end_date: endDate.toISOString().split('T')[0],
+      };
+      
+      // Fetch data in parallel
+      const [overviewData, volumeData, recordsData, muscleData] = await Promise.all([
+        progressService.getWorkoutOverview(dateParams),
+        progressService.getWorkoutTrends({ ...dateParams, metric: 'volume' }),
+        progressService.getPersonalRecords(),
+        progressService.getMuscleGroupStats(dateParams),
+      ]);
+      
+      setOverview(overviewData);
+      setVolumeTrend(volumeData.data_points);
+      setPersonalRecords(recordsData.records);
+      setMuscleGroups(muscleData.muscle_groups);
+    } catch (error) {
+      console.error('Failed to fetch progress data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const formatDuration = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    
+    if (hours > 0) {
+      return `${hours}h ${mins}m`;
+    }
+    return `${mins}m`;
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    
+    if (selectedPeriod === 'week') {
+      return date.toLocaleDateString('en-US', { weekday: 'short' });
+    } else if (selectedPeriod === 'month') {
+      return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+    } else {
+      return date.toLocaleDateString('en-US', { month: 'short' });
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <ThemedView style={[styles.container, styles.centered]}>
+        <ActivityIndicator size="large" color={Colors[colorScheme].tint} />
+      </ThemedView>
+    );
+  }
+
+  return (
+    <ScrollView style={styles.container}>
+      <ThemedView style={styles.header}>
+        <ThemedText type="title">Your Progress</ThemedText>
+        
+        <ThemedView style={styles.periodSelector}>
+          <TouchableOpacity
+            style={[
+              styles.periodButton,
+              selectedPeriod === 'week' && styles.selectedPeriodButton,
+            ]}
+            onPress={() => setSelectedPeriod('week')}>
+            <ThemedText
+              style={[
+                styles.periodButtonText,
+                selectedPeriod === 'week' && styles.selectedPeriodText,
+              ]}>
+              Week
+            </ThemedText>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={[
+              styles.periodButton,
+              selectedPeriod === 'month' && styles.selectedPeriodButton,
+            ]}
+            onPress={() => setSelectedPeriod('month')}>
+            <ThemedText
+              style={[
+                styles.periodButtonText,
+                selectedPeriod === 'month' && styles.selectedPeriodText,
+              ]}>
+              Month
+            </ThemedText>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={[
+              styles.periodButton,
+              selectedPeriod === 'year' && styles.selectedPeriodButton,
+            ]}
+            onPress={() => setSelectedPeriod('year')}>
+            <ThemedText
+              style={[
+                styles.periodButtonText,
+                selectedPeriod === 'year' && styles.selectedPeriodText,
+              ]}>
+              Year
+            </ThemedText>
+          </TouchableOpacity>
+        </ThemedView>
+      </ThemedView>
+
+      {/* Overview metrics */}
+      {overview && (
+        <ThemedView style={styles.overviewContainer}>
+          <ThemedView style={styles.metricRow}>
+            <MetricCard
+              title="Workouts"
+              value={overview.workout_count.toString()}
+              color="#4A90E2"
+            />
+            <MetricCard
+              title="Total Volume"
+              value={`${Math.round(overview.total_volume).toLocaleString()}kg`}
+              color="#50C878"
+            />
+          </ThemedView>
+          
+          <ThemedView style={styles.metricRow}>
+            <MetricCard
+              title="Avg Duration"
+              value={formatDuration(overview.avg_workout_duration)}
+              color="#9013FE"
+            />
+            <MetricCard
+              title="Records"
+              value={overview.personal_records_count.toString()}
+              color="#FF9500"
+            />
+          </ThemedView>
+          
+          <ThemedView style={styles.mostTrainedContainer}>
+            <ThemedText style={styles.mostTrainedLabel}>Most Trained Muscle:</ThemedText>
+            <ThemedText style={styles.mostTrainedValue}>{overview.most_trained_muscle}</ThemedText>
+          </ThemedView>
+        </ThemedView>
+      )}
+
+      {/* Volume Trend Chart */}
+      <ThemedView style={styles.chartContainer}>
+        <ThemedText style={styles.sectionTitle}>Total Volume Trend</ThemedText>
+        
+        {volumeTrend.length > 1 ? (
+          <LineChart
+            data={{
+              labels: volumeTrend.map(point => formatDate(point.date)),
+              datasets: [
+                {
+                  data: volumeTrend.map(point => point.value),
+                },
+              ],
+            }}
+            width={screenWidth - 40}
+            height={220}
+            yAxisSuffix="kg"
+            chartConfig={{
+              backgroundColor: colorScheme === 'dark' ? '#1c1c1e' : '#ffffff',
+              backgroundGradientFrom: colorScheme === 'dark' ? '#1c1c1e' : '#ffffff',
+              backgroundGradientTo: colorScheme === 'dark' ? '#1c1c1e' : '#ffffff',
+              decimalPlaces: 0,
+              color: (opacity = 1) => 
+                colorScheme === 'dark' 
+                  ? `rgba(255, 255, 255, ${opacity})` 
+                  : `rgba(0, 122, 164, ${opacity})`,
+              labelColor: (opacity = 1) => 
+                colorScheme === 'dark' 
+                  ? `rgba(255, 255, 255, ${opacity})` 
+                  : `rgba(0, 0, 0, ${opacity})`,
+              propsForDots: {
+                r: '6',
+                strokeWidth: '2',
+                stroke: Colors[colorScheme].tint,
+              },
+            }}
+            bezier
+            style={{
+              marginVertical: 8,
+              borderRadius: 16,
+            }}
+          />
+        ) : (
+          <ThemedView style={styles.noDataContainer}>
+            <ThemedText style={styles.noDataText}>
+              Not enough data to show volume trend.
+            </ThemedText>
+          </ThemedView>
+        )}
+      </ThemedView>
+
+      {/* Personal Records */}
+      <ThemedView style={styles.sectionContainer}>
+        <ThemedView style={styles.sectionHeader}>
+          <ThemedText style={styles.sectionTitle}>Personal Records</ThemedText>
+          <TouchableOpacity onPress={() => router.push('/progress/records' as any)}>
+            <ThemedText style={styles.viewAllText}>View All</ThemedText>
+          </TouchableOpacity>
+        </ThemedView>
+        
+        {personalRecords.length > 0 ? (
+          personalRecords.slice(0, 3).map((record, index) => (
+            <ThemedView key={index} style={styles.recordItem}>
+              <ThemedView>
+                <ThemedText style={styles.recordExercise}>{record.exercise_name}</ThemedText>
+                <ThemedText style={styles.recordDate}>
+                  {new Date(record.date).toLocaleDateString()}
+                </ThemedText>
+              </ThemedView>
+              
+              <ThemedView style={styles.recordValue}>
+                <ThemedText style={styles.recordWeight}>{record.weight}kg</ThemedText>
+                <ThemedText style={styles.recordReps}>× {record.reps}</ThemedText>
+              </ThemedView>
+            </ThemedView>
+          ))
+        ) : (
+          <ThemedView style={styles.noDataContainer}>
+            <ThemedText style={styles.noDataText}>
+              No personal records yet. Keep training!
+            </ThemedText>
+          </ThemedView>
+        )}
+      </ThemedView>
+
+      {/* Muscle Group Heatmap */}
+      <ThemedView style={styles.sectionContainer}>
+        <ThemedView style={styles.sectionHeader}>
+          <ThemedText style={styles.sectionTitle}>Muscle Group Activity</ThemedText>
+          <TouchableOpacity onPress={() => router.push('/progress/muscles' as any)}>
+            <ThemedText style={styles.viewAllText}>View All</ThemedText>
+          </TouchableOpacity>
+        </ThemedView>
+        
+        {muscleGroups.length > 0 ? (
+          muscleGroups
+            .sort((a, b) => b.activity_level - a.activity_level)
+            .slice(0, 5)
+            .map((muscle, index) => (
+              <ThemedView key={index} style={styles.muscleItem}>
+                <ThemedText style={styles.muscleName}>{muscle.name}</ThemedText>
+                <ThemedView style={styles.progressBarContainer}>
+                  <ThemedView
+                    style={[
+                      styles.progressBar,
+                      {
+                        width: `${muscle.activity_level}%`,
+                        backgroundColor: getColorForActivity(muscle.activity_level),
+                      },
+                    ]}
+                  />
+                </ThemedView>
+                <ThemedText style={styles.muscleVolume}>
+                  {Math.round(muscle.volume)}kg
+                </ThemedText>
+              </ThemedView>
+            ))
+        ) : (
+          <ThemedView style={styles.noDataContainer}>
+            <ThemedText style={styles.noDataText}>
+              No muscle group data available yet.
+            </ThemedText>
+          </ThemedView>
+        )}
+      </ThemedView>
+    </ScrollView>
+  );
+}
+
+interface MetricCardProps {
+  title: string;
+  value: string;
+  color: string;
+}
+
+function MetricCard({ title, value, color }: MetricCardProps) {
+  return (
+    <ThemedView style={[styles.metricCard, { borderLeftColor: color }]}>
+      <ThemedText style={styles.metricTitle}>{title}</ThemedText>
+      <ThemedText style={styles.metricValue}>{value}</ThemedText>
+    </ThemedView>
+  );
+}
+
+// Helper function to get color based on activity level
+function getColorForActivity(level: number): string {
+  if (level >= 75) return '#4CD964'; // High activity - green
+  if (level >= 50) return '#FFCC00'; // Medium activity - yellow
+  if (level >= 25) return '#FF9500'; // Low-medium activity - orange
+  return '#FF3B30'; // Low activity - red
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+  },
+  centered: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  header: {
+    marginTop: 40,
+    marginBottom: 24,
+  },
+  periodSelector: {
+    flexDirection: 'row',
+    marginTop: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    borderRadius: 8,
+    padding: 4,
+  },
+  periodButton: {
+    flex: 1,
+    paddingVertical: 8,
+    alignItems: 'center',
+    borderRadius: 6,
+  },
+  selectedPeriodButton: {
+    backgroundColor: Colors.light.tint,
+  },
+  periodButtonText: {
+    fontWeight: '500',
+  },
+  selectedPeriodText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  overviewContainer: {
+    marginBottom: 24,
+  },
+  metricRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  metricCard: {
+    flex: 1,
+    borderRadius: 8,
+    padding: 16,
+    marginHorizontal: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    borderLeftWidth: 4,
+  },
+  metricTitle: {
+    fontSize: 14,
+    opacity: 0.7,
+    marginBottom: 8,
+  },
+  metricValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  mostTrainedContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
+    padding: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    borderRadius: 8,
+  },
+  mostTrainedLabel: {
+    fontSize: 14,
+    opacity: 0.7,
+  },
+  mostTrainedValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 8,
+  },
+  chartContainer: {
+    marginBottom: 24,
+    padding: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+    borderRadius: 12,
+  },
+  sectionContainer: {
+    marginBottom: 24,
+    padding: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+    borderRadius: 12,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  viewAllText: {
+    color: Colors.light.tint,
+  },
+  recordItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  recordExercise: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  recordDate: {
+    fontSize: 12,
+    opacity: 0.7,
+    marginTop: 4,
+  },
+  recordValue: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  recordWeight: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  recordReps: {
+    fontSize: 14,
+    opacity: 0.7,
+    marginLeft: 4,
+  },
+  muscleItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  muscleName: {
+    width: 100,
+    fontSize: 14,
+  },
+  progressBarContainer: {
+    flex: 1,
+    height: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    borderRadius: 4,
+    marginHorizontal: 12,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+  },
+  muscleVolume: {
+    width: 60,
+    fontSize: 14,
+    fontWeight: '500',
+    textAlign: 'right',
+  },
+  noDataContainer: {
+    padding: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  noDataText: {
+    opacity: 0.7,
+    textAlign: 'center',
+  },
+});
+
+================
+File: app/(tabs)/progress/muscles.tsx
+================
+import { router } from 'expo-router';
+import React from 'react';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+
+export default function MuscleGroupsScreen() {
+  const colorScheme = useColorScheme() ?? 'light';
+
+  return (
+    <ThemedView style={styles.container}>
+      <ThemedView style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}>
+          <IconSymbol name="arrow.left" size={24} color={Colors[colorScheme].text} />
+        </TouchableOpacity>
+        <ThemedText type="title">Muscle Groups</ThemedText>
+      </ThemedView>
+
+      <ThemedView style={styles.content}>
+        <ThemedText>Muscle Groups screen - To be implemented</ThemedText>
+      </ThemedView>
+    </ThemedView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    paddingTop: 60,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  backButton: {
+    marginRight: 16,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
+
+================
+File: app/(tabs)/progress/records.tsx
+================
+import { router } from 'expo-router';
+import React from 'react';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+
+export default function PersonalRecordsScreen() {
+  const colorScheme = useColorScheme() ?? 'light';
+
+  return (
+    <ThemedView style={styles.container}>
+      <ThemedView style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}>
+          <IconSymbol name="arrow.left" size={24} color={Colors[colorScheme].text} />
+        </TouchableOpacity>
+        <ThemedText type="title">Personal Records</ThemedText>
+      </ThemedView>
+
+      <ThemedView style={styles.content}>
+        <ThemedText>Personal Records screen - To be implemented</ThemedText>
+      </ThemedView>
+    </ThemedView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    paddingTop: 60,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  backButton: {
+    marginRight: 16,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
+
+================
+File: app/(tabs)/templates/[id].tsx
+================
+import { router } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
+
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { Template, templateService } from '@/services/template.service';
+
+export default function TemplatesScreen() {
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const colorScheme = useColorScheme() ?? 'light';
+
+  const fetchTemplates = async () => {
+    try {
+      setIsLoading(true);
+      const data = await templateService.getTemplates();
+      setTemplates(data);
+    } catch (error) {
+      console.error('Failed to fetch templates:', error);
+      Alert.alert('Error', 'Failed to load workout templates');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTemplates();
+  }, []);
+
+  const handleCreateTemplate = () => {
+    router.push('/templates/create');
+  };
+
+  const handleDeleteTemplate = async (id: string, name: string) => {
+    Alert.alert(
+      'Delete Template',
+      `Are you sure you want to delete "${name}"?`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await templateService.deleteTemplate(id);
+              // Remove template from state
+              setTemplates(templates.filter(t => t.id !== id));
+            } catch (error) {
+              console.error('Failed to delete template:', error);
+              Alert.alert('Error', 'Failed to delete template');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const renderItem = ({ item }: { item: Template }) => (
+    <TouchableOpacity
+      style={styles.templateCard}
+      onPress={() => router.push(`/templates/${item.id}`)}>
+      <ThemedView style={styles.templateContent}>
+        <ThemedText style={styles.templateName}>{item.name}</ThemedText>
+        <ThemedText style={styles.templateDescription} numberOfLines={2}>
+          {item.description || 'No description'}
+        </ThemedText>
+        <ThemedView style={styles.templateFooter}>
+          <ThemedView style={styles.exerciseCount}>
+            <IconSymbol name="list.bullet" size={16} color={Colors[colorScheme].text} />
+            <ThemedText style={styles.exerciseCountText}>
+              {item.exercise_count || 0} exercises
+            </ThemedText>
+          </ThemedView>
+        </ThemedView>
+      </ThemedView>
+      
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={() => handleDeleteTemplate(item.id, item.name)}>
+        <IconSymbol name="trash" size={20} color="#FF3B30" />
+      </TouchableOpacity>
+    </TouchableOpacity>
+  );
+
+  return (
+    <ThemedView style={styles.container}>
+      <ThemedView style={styles.header}>
+        <ThemedText type="title">Workout Templates</ThemedText>
+        <TouchableOpacity
+          style={styles.createButton}
+          onPress={handleCreateTemplate}>
+          <IconSymbol name="plus.circle.fill" size={24} color={Colors[colorScheme].tint} />
+        </TouchableOpacity>
+      </ThemedView>
+
+      {isLoading ? (
+        <ActivityIndicator size="large" color={Colors[colorScheme].tint} style={styles.loader} />
+      ) : templates.length > 0 ? (
+        <FlatList
+          data={templates}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.listContent}
+        />
+      ) : (
+        <ThemedView style={styles.emptyState}>
+          <ThemedText style={styles.emptyStateText}>
+            No workout templates yet
+          </ThemedText>
+          <TouchableOpacity
+            style={styles.createTemplateButton}
+            onPress={handleCreateTemplate}>
+            <ThemedText style={styles.createTemplateButtonText}>
+              Create Your First Template
+            </ThemedText>
+          </TouchableOpacity>
+        </ThemedView>
+      )}
+    </ThemedView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    paddingTop: 60,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  createButton: {
+    padding: 8,
+  },
+  listContent: {
+    paddingBottom: 20,
+  },
+  templateCard: {
+    flexDirection: 'row',
+    borderRadius: 12,
+    marginBottom: 16,
+    padding: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  templateContent: {
+    flex: 1,
+  },
+  templateName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 6,
+  },
+  templateDescription: {
+    fontSize: 14,
+    opacity: 0.7,
+    marginBottom: 12,
+  },
+  templateFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  exerciseCount: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  exerciseCountText: {
+    fontSize: 12,
+    marginLeft: 4,
+  },
+  deleteButton: {
+    padding: 8,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    opacity: 0.7,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  createTemplateButton: {
+    backgroundColor: Colors.light.tint,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  createTemplateButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+});
+
+================
+File: app/(tabs)/templates/create.tsx
+================
+import { router } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
+
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { Template, templateService } from '@/services/template.service';
+
+export default function TemplatesScreen() {
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const colorScheme = useColorScheme() ?? 'light';
+
+  const fetchTemplates = async () => {
+    try {
+      setIsLoading(true);
+      const data = await templateService.getTemplates();
+      setTemplates(data);
+    } catch (error) {
+      console.error('Failed to fetch templates:', error);
+      Alert.alert('Error', 'Failed to load workout templates');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTemplates();
+  }, []);
+
+  const handleCreateTemplate = () => {
+    router.push('/templates/create');
+  };
+
+  const handleDeleteTemplate = async (id: string, name: string) => {
+    Alert.alert(
+      'Delete Template',
+      `Are you sure you want to delete "${name}"?`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await templateService.deleteTemplate(id);
+              // Remove template from state
+              setTemplates(templates.filter(t => t.id !== id));
+            } catch (error) {
+              console.error('Failed to delete template:', error);
+              Alert.alert('Error', 'Failed to delete template');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const renderItem = ({ item }: { item: Template }) => (
+    <TouchableOpacity
+      style={styles.templateCard}
+      onPress={() => router.push(`/templates/${item.id}`)}>
+      <ThemedView style={styles.templateContent}>
+        <ThemedText style={styles.templateName}>{item.name}</ThemedText>
+        <ThemedText style={styles.templateDescription} numberOfLines={2}>
+          {item.description || 'No description'}
+        </ThemedText>
+        <ThemedView style={styles.templateFooter}>
+          <ThemedView style={styles.exerciseCount}>
+            <IconSymbol name="list.bullet" size={16} color={Colors[colorScheme].text} />
+            <ThemedText style={styles.exerciseCountText}>
+              {item.exercise_count || 0} exercises
+            </ThemedText>
+          </ThemedView>
+        </ThemedView>
+      </ThemedView>
+      
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={() => handleDeleteTemplate(item.id, item.name)}>
+        <IconSymbol name="trash" size={20} color="#FF3B30" />
+      </TouchableOpacity>
+    </TouchableOpacity>
+  );
+
+  return (
+    <ThemedView style={styles.container}>
+      <ThemedView style={styles.header}>
+        <ThemedText type="title">Workout Templates</ThemedText>
+        <TouchableOpacity
+          style={styles.createButton}
+          onPress={handleCreateTemplate}>
+          <IconSymbol name="plus.circle.fill" size={24} color={Colors[colorScheme].tint} />
+        </TouchableOpacity>
+      </ThemedView>
+
+      {isLoading ? (
+        <ActivityIndicator size="large" color={Colors[colorScheme].tint} style={styles.loader} />
+      ) : templates.length > 0 ? (
+        <FlatList
+          data={templates}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.listContent}
+        />
+      ) : (
+        <ThemedView style={styles.emptyState}>
+          <ThemedText style={styles.emptyStateText}>
+            No workout templates yet
+          </ThemedText>
+          <TouchableOpacity
+            style={styles.createTemplateButton}
+            onPress={handleCreateTemplate}>
+            <ThemedText style={styles.createTemplateButtonText}>
+              Create Your First Template
+            </ThemedText>
+          </TouchableOpacity>
+        </ThemedView>
+      )}
+    </ThemedView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    paddingTop: 60,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  createButton: {
+    padding: 8,
+  },
+  listContent: {
+    paddingBottom: 20,
+  },
+  templateCard: {
+    flexDirection: 'row',
+    borderRadius: 12,
+    marginBottom: 16,
+    padding: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  templateContent: {
+    flex: 1,
+  },
+  templateName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 6,
+  },
+  templateDescription: {
+    fontSize: 14,
+    opacity: 0.7,
+    marginBottom: 12,
+  },
+  templateFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  exerciseCount: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  exerciseCountText: {
+    fontSize: 12,
+    marginLeft: 4,
+  },
+  deleteButton: {
+    padding: 8,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    opacity: 0.7,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  createTemplateButton: {
+    backgroundColor: Colors.light.tint,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  createTemplateButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+});
+
+================
+File: app/(tabs)/templates/index.tsx
+================
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
+  Alert,
+  TextInput,
+} from 'react-native';
+
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { Exercise, exerciseService } from '@/services/exercise.service';
+import {
+  Template,
+  TemplateExercise,
+  templateService,
+} from '@/services/template.service';
+import { workoutService } from '@/services/workout.service';
+
+export default function TemplateDetailScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const [template, setTemplate] = useState<Template | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedName, setEditedName] = useState('');
+  const [editedDescription, setEditedDescription] = useState('');
+  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
+  const [showExerciseList, setShowExerciseList] = useState(false);
+  const [isLoadingExercises, setIsLoadingExercises] = useState(false);
+  const colorScheme = useColorScheme() ?? 'light';
+
+  const fetchTemplate = async () => {
+    if (!id) return;
+    
+    try {
+      setIsLoading(true);
+      const data = await templateService.getTemplate(id);
+      setTemplate(data);
+      setEditedName(data.name);
+      setEditedDescription(data.description || '');
+    } catch (error) {
+      console.error('Failed to fetch template:', error);
+      Alert.alert('Error', 'Failed to load workout template');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchExercises = async () => {
+    try {
+      setIsLoadingExercises(true);
+      const data = await exerciseService.getExercises();
+      setExercises(data);
+    } catch (error) {
+      console.error('Failed to fetch exercises:', error);
+      Alert.alert('Error', 'Failed to load exercises');
+    } finally {
+      setIsLoadingExercises(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTemplate();
+  }, [id]);
+
+  const handleSaveChanges = async () => {
+    if (!template) return;
+    
+    try {
+      setIsLoading(true);
+      await templateService.updateTemplate(template.id, {
+        name: editedName,
+        description: editedDescription,
+      });
+      
+      // Update the local state
+      setTemplate({
+        ...template,
+        name: editedName,
+        description: editedDescription,
+      });
+      
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Failed to update template:', error);
+      Alert.alert('Error', 'Failed to update template');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAddExercise = () => {
+    setShowExerciseList(true);
+    fetchExercises();
+  };
+
+  const handleSelectExercise = (exercise: Exercise) => {
+    setSelectedExercise(exercise);
+    setShowExerciseList(false);
+    
+    // Determine the next order number
+    const nextOrder = template?.exercises?.length ? 
+      Math.max(...template.exercises.map(e => e.order)) + 1 : 
+      1;
+    
+    // Add the exercise to the template
+    addExerciseToTemplate(exercise.id, nextOrder);
+  };
+
+  const addExerciseToTemplate = async (exerciseId: string, order: number) => {
+    if (!template) return;
+    
+    try {
+      setIsLoading(true);
+      await templateService.addExercise(template.id, {
+        exercise_id: exerciseId,
+        order,
+        notes: '',
+      });
+      
+      // Refresh the template to show the new exercise
+      await fetchTemplate();
+    } catch (error) {
+      console.error('Failed to add exercise to template:', error);
+      Alert.alert('Error', 'Failed to add exercise to template');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRemoveExercise = async (exerciseId: string) => {
+    if (!template) return;
+    
+    Alert.alert(
+      'Remove Exercise',
+      'Are you sure you want to remove this exercise from the template?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Remove',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setIsLoading(true);
+              await templateService.removeExercise(template.id, exerciseId);
+              
+              // Refresh the template
+              await fetchTemplate();
+            } catch (error) {
+              console.error('Failed to remove exercise:', error);
+              Alert.alert('Error', 'Failed to remove exercise');
+            } finally {
+              setIsLoading(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleStartWorkout = async () => {
+    if (!template) return;
+    
+    try {
+      await workoutService.startWorkout({
+        name: template.name,
+        template_ids: [template.id],
+      });
+      
+      router.push('/active-workout');
+    } catch (error) {
+      console.error('Failed to start workout:', error);
+      Alert.alert('Error', 'Failed to start workout');
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <ThemedView style={[styles.container, styles.centered]}>
+        <ActivityIndicator size="large" color={Colors[colorScheme].tint} />
+      </ThemedView>
+    );
+  }
+
+  if (!template) {
+    return (
+      <ThemedView style={[styles.container, styles.centered]}>
+        <ThemedText>Template not found</ThemedText>
+      </ThemedView>
+    );
+  }
+
+  // Render the exercise list for selection
+  if (showExerciseList) {
+    return (
+      <ThemedView style={styles.container}>
+        <ThemedView style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => setShowExerciseList(false)}>
+            <IconSymbol name="arrow.left" size={24} color={Colors[colorScheme].text} />
+          </TouchableOpacity>
+          <ThemedText type="title">Select Exercise</ThemedText>
+        </ThemedView>
+
+        {isLoadingExercises ? (
+          <ActivityIndicator size="large" color={Colors[colorScheme].tint} style={styles.loader} />
+        ) : (
+          <FlatList
+            data={exercises}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.exerciseListItem}
+                onPress={() => handleSelectExercise(item)}>
+                <ThemedView>
+                  <ThemedText style={styles.exerciseName}>{item.name}</ThemedText>
+                  <ThemedText style={styles.exerciseDetail}>
+                    {item.target_muscle_group} • {item.primary_equipment}
+                  </ThemedText>
+                </ThemedView>
+                <IconSymbol name="plus.circle.fill" size={20} color={Colors[colorScheme].tint} />
+              </TouchableOpacity>
+            )}
+          />
+        )}
+      </ThemedView>
+    );
+  }
+
+  return (
+    <ThemedView style={styles.container}>
+      <ThemedView style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}>
+          <IconSymbol name="arrow.left" size={24} color={Colors[colorScheme].text} />
+        </TouchableOpacity>
+        
+        {isEditing ? (
+          <TextInput
+            style={[
+              styles.editNameInput,
+              {
+                color: colorScheme === 'dark' ? '#fff' : '#000',
+              },
+            ]}
+            value={editedName}
+            onChangeText={setEditedName}
+          />
+        ) : (
+          <ThemedText type="title">{template.name}</ThemedText>
+        )}
+        
+        <TouchableOpacity
+          style={styles.editButton}
+          onPress={() => {
+            if (isEditing) {
+              handleSaveChanges();
+            } else {
+              setIsEditing(true);
+            }
+          }}>
+          <IconSymbol
+            name={isEditing ? "checkmark.circle.fill" : "pencil"}
+            size={24}
+            color={Colors[colorScheme].tint}
+          />
+        </TouchableOpacity>
+      </ThemedView>
+
+      {isEditing ? (
+        <TextInput
+          style={[
+            styles.editDescriptionInput,
+            {
+              backgroundColor: colorScheme === 'dark' ? '#333' : '#f5f5f5',
+              color: colorScheme === 'dark' ? '#fff' : '#000',
+            },
+          ]}
+          value={editedDescription}
+          onChangeText={setEditedDescription}
+          multiline
+          placeholder="Add a description..."
+          placeholderTextColor={colorScheme === 'dark' ? '#aaa' : '#777'}
+        />
+      ) : template.description ? (
+        <ThemedText style={styles.description}>{template.description}</ThemedText>
+      ) : null}
+
+      <ThemedView style={styles.exercisesHeader}>
+        <ThemedText type="subtitle">Exercises</ThemedText>
+        <TouchableOpacity onPress={handleAddExercise}>
+          <ThemedText style={styles.addExerciseText}>Add Exercise</ThemedText>
+        </TouchableOpacity>
+      </ThemedView>
+
+      {template.exercises && template.exercises.length > 0 ? (
+        <FlatList
+          data={template.exercises.sort((a, b) => a.order - b.order)}
+          keyExtractor={(item) => item.id || item.exercise_id}
+          renderItem={({ item, index }) => (
+            <TemplateExerciseItem
+              exercise={item}
+              index={index}
+              onRemove={handleRemoveExercise}
+              templateId={template.id}
+              onTemplateUpdated={fetchTemplate}
+            />
+          )}
+          style={styles.exercisesList}
+        />
+      ) : (
+        <ThemedView style={styles.emptyExercises}>
+          <ThemedText style={styles.emptyExercisesText}>
+            No exercises added yet. Tap "Add Exercise" to get started.
+          </ThemedText>
+        </ThemedView>
+      )}
+
+      <TouchableOpacity
+        style={styles.startWorkoutButton}
+        onPress={handleStartWorkout}
+        disabled={!template.exercises || template.exercises.length === 0}>
+        <ThemedText style={styles.startWorkoutButtonText}>
+          Start Workout
+        </ThemedText>
+      </TouchableOpacity>
+    </ThemedView>
+  );
+}
+
+// Component for template exercise item with sets
+function TemplateExerciseItem({
+  exercise,
+  index,
+  onRemove,
+  templateId,
+  onTemplateUpdated,
+}: {
+  exercise: TemplateExercise;
+  index: number;
+  onRemove: (exerciseId: string) => void;
+  templateId: string;
+  onTemplateUpdated: () => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const [newSetReps, setNewSetReps] = useState('8');
+  const [newSetWeight, setNewSetWeight] = useState('0');
+  const [newSetRest, setNewSetRest] = useState('60');
+  const [isAddingSet, setIsAddingSet] = useState(false);
+  const colorScheme = useColorScheme() ?? 'light';
+
+  const handleAddSet = async () => {
+    try {
+      await templateService.addSet(templateId, exercise.id || exercise.exercise_id, {
+        set_number: (exercise.sets?.length || 0) + 1,
+        target_reps: parseInt(newSetReps),
+        target_weight: parseFloat(newSetWeight),
+        is_warmup: false,
+        target_rest_time: parseInt(newSetRest),
+      });
+      
+      // Reset the form
+      setIsAddingSet(false);
+      setNewSetReps('8');
+      setNewSetWeight('0');
+      setNewSetRest('60');
+      
+      // Refresh the template
+      onTemplateUpdated();
+    } catch (error) {
+      console.error('Failed to add set:', error);
+      Alert.alert('Error', 'Failed to add set');
+    }
+  };
+
+  const handleRemoveSet = async (setId: string) => {
+    try {
+      await templateService.removeSet(templateId, exercise.id || exercise.exercise_id, setId);
+      onTemplateUpdated();
+    } catch (error) {
+      console.error('Failed to remove set:', error);
+      Alert.alert('Error', 'Failed to remove set');
+    }
+  };
+
+  return (
+    <ThemedView style={styles.exerciseItem}>
+      <TouchableOpacity
+        style={styles.exerciseHeader}
+        onPress={() => setExpanded(!expanded)}>
+        <ThemedView style={styles.exerciseInfo}>
+          <ThemedText style={styles.exerciseIndex}>{index + 1}</ThemedText>
+          <ThemedView>
+            <ThemedText style={styles.exerciseName}>
+              {exercise.exercise?.name || 'Exercise'}
+            </ThemedText>
+            {exercise.exercise?.target_muscle_group && (
+              <ThemedText style={styles.exerciseDetail}>
+                {exercise.exercise.target_muscle_group}
+              </ThemedText>
+            )}
+          </ThemedView>
+        </ThemedView>
+        
+        <ThemedView style={styles.exerciseActions}>
+          <TouchableOpacity
+            style={styles.removeExerciseButton}
+            onPress={() => onRemove(exercise.id || exercise.exercise_id)}>
+            <IconSymbol name="trash" size={18} color="#FF3B30" />
+          </TouchableOpacity>
+          <IconSymbol
+            name={expanded ? "chevron.right" : "chevron.right"}
+            size={18}
+            color={Colors[colorScheme].text}
+            style={[
+              styles.expandIcon,
+              expanded && styles.expandIconRotated,
+            ]}
+          />
+        </ThemedView>
+      </TouchableOpacity>
+
+      {expanded && (
+        <ThemedView style={styles.exerciseDetails}>
+          {/* Sets list */}
+          {exercise.sets && exercise.sets.length > 0 ? (
+            <ThemedView style={styles.setsList}>
+              <ThemedView style={styles.setsHeader}>
+                <ThemedText style={styles.setsHeaderText}>Set</ThemedText>
+                <ThemedText style={styles.setsHeaderText}>Reps</ThemedText>
+                <ThemedText style={styles.setsHeaderText}>Weight</ThemedText>
+                <ThemedText style={styles.setsHeaderText}>Rest</ThemedText>
+                <ThemedText style={styles.setsHeaderText}></ThemedText>
+              </ThemedView>
+              
+              {exercise.sets.map((set) => (
+                <ThemedView key={set.id} style={styles.setRow}>
+                  <ThemedText style={styles.setText}>{set.set_number}</ThemedText>
+                  <ThemedText style={styles.setText}>{set.target_reps}</ThemedText>
+                  <ThemedText style={styles.setText}>{set.target_weight}</ThemedText>
+                  <ThemedText style={styles.setText}>{set.target_rest_time}s</ThemedText>
+                  <TouchableOpacity onPress={() => handleRemoveSet(set.id as string)}>
+                    <IconSymbol name="trash" size={16} color="#FF3B30" />
+                  </TouchableOpacity>
+                </ThemedView>
+              ))}
+            </ThemedView>
+          ) : (
+            <ThemedText style={styles.noSetsText}>No sets defined</ThemedText>
+          )}
+
+          {/* Add Set Form */}
+          {isAddingSet ? (
+            <ThemedView style={styles.addSetForm}>
+              <ThemedView style={styles.setInputRow}>
+                <ThemedView style={styles.setInputGroup}>
+                  <ThemedText style={styles.setInputLabel}>Reps</ThemedText>
+                  <TextInput
+                    style={[
+                      styles.setInput,
+                      {
+                        backgroundColor: colorScheme === 'dark' ? '#333' : '#f5f5f5',
+                        color: colorScheme === 'dark' ? '#fff' : '#000',
+                      },
+                    ]}
+                    value={newSetReps}
+                    onChangeText={setNewSetReps}
+                    keyboardType="number-pad"
+                  />
+                </ThemedView>
+                
+                <ThemedView style={styles.setInputGroup}>
+                  <ThemedText style={styles.setInputLabel}>Weight</ThemedText>
+                  <TextInput
+                    style={[
+                      styles.setInput,
+                      {
+                        backgroundColor: colorScheme === 'dark' ? '#333' : '#f5f5f5',
+                        color: colorScheme === 'dark' ? '#fff' : '#000',
+                      },
+                    ]}
+                    value={newSetWeight}
+                    onChangeText={setNewSetWeight}
+                    keyboardType="decimal-pad"
+                  />
+                </ThemedView>
+                
+                <ThemedView style={styles.setInputGroup}>
+                  <ThemedText style={styles.setInputLabel}>Rest (s)</ThemedText>
+                  <TextInput
+                    style={[
+                      styles.setInput,
+                      {
+                        backgroundColor: colorScheme === 'dark' ? '#333' : '#f5f5f5',
+                        color: colorScheme === 'dark' ? '#fff' : '#000',
+                      },
+                    ]}
+                    value={newSetRest}
+                    onChangeText={setNewSetRest}
+                    keyboardType="number-pad"
+                  />
+                </ThemedView>
+              </ThemedView>
+              
+              <ThemedView style={styles.setFormButtons}>
+                <TouchableOpacity
+                  style={[styles.setFormButton, styles.cancelButton]}
+                  onPress={() => setIsAddingSet(false)}>
+                  <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
+                </TouchableOpacity>
+                
+                <TouchableOpacity
+                  style={[styles.setFormButton, styles.addButton]}
+                  onPress={handleAddSet}>
+                  <ThemedText style={styles.addButtonText}>Add Set</ThemedText>
+                </TouchableOpacity>
+              </ThemedView>
+            </ThemedView>
+          ) : (
+            <TouchableOpacity
+              style={styles.addSetButton}
+              onPress={() => setIsAddingSet(true)}>
+              <IconSymbol name="plus.circle.fill" size={16} color={Colors[colorScheme].tint} />
+              <ThemedText style={styles.addSetButtonText}>Add Set</ThemedText>
+            </TouchableOpacity>
+          )}
+        </ThemedView>
+      )}
+    </ThemedView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    paddingTop: 60,
+  },
+  centered: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  backButton: {
+    marginRight: 16,
+  },
+  editButton: {
+    marginLeft: 'auto',
+    padding: 8,
+  },
+  editNameInput: {
+    flex: 1,
+    fontSize: 22,
+    fontWeight: 'bold',
+    padding: 4,
+  },
+  editDescriptionInput: {
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 24,
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+  description: {
+    marginBottom: 24,
+    opacity: 0.7,
+  },
+  exercisesHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  addExerciseText: {
+    color: Colors.light.tint,
+    fontWeight: 'bold',
+  },
+  exercisesList: {
+    flex: 1,
+  },
+  exerciseItem: {
+    marginBottom: 12,
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  exerciseHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 12,
+  },
+  exerciseInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  exerciseIndex: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: Colors.light.tint,
+    color: 'white',
+    textAlign: 'center',
+    lineHeight: 24,
+    marginRight: 12,
+    fontWeight: 'bold',
+  },
+  exerciseName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  exerciseDetail: {
+    fontSize: 14,
+    opacity: 0.7,
+  },
+  exerciseActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  removeExerciseButton: {
+    marginRight: 16,
+  },
+  expandIcon: {
+    transform: [{ rotate: '0deg' }],
+  },
+  expandIconRotated: {
+    transform: [{ rotate: '90deg' }],
+  },
+  exerciseDetails: {
+    padding: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  noSetsText: {
+    opacity: 0.7,
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  setsList: {
+    marginBottom: 16,
+  },
+  setsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+    paddingHorizontal: 4,
+  },
+  setsHeaderText: {
+    fontWeight: 'bold',
+    fontSize: 14,
+    flex: 1,
+    textAlign: 'center',
+  },
+  setRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  setText: {
+    flex: 1,
+    textAlign: 'center',
+  },
+  addSetButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8,
+  },
+  addSetButtonText: {
+    color: Colors.light.tint,
+    marginLeft: 8,
+    fontWeight: 'bold',
+  },
+  addSetForm: {
+    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+    padding: 12,
+    borderRadius: 8,
+  },
+  setInputRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  setInputGroup: {
+    flex: 1,
+    marginHorizontal: 4,
+  },
+  setInputLabel: {
+    fontSize: 12,
+    marginBottom: 4,
+  },
+  setInput: {
+    height: 40,
+    borderRadius: 4,
+    paddingHorizontal: 8,
+  },
+  setFormButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  setFormButton: {
+    flex: 1,
+    height: 40,
+    borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 4,
+  },
+  cancelButton: {
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  cancelButtonText: {
+    fontWeight: 'bold',
+  },
+  addButton: {
+    backgroundColor: Colors.light.tint,
+  },
+  addButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  exerciseListItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyExercises: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyExercisesText: {
+    textAlign: 'center',
+    opacity: 0.7,
+  },
+  startWorkoutButton: {
+    backgroundColor: Colors.light.tint,
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  startWorkoutButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+});
+
+================
+File: app/(tabs)/_layout.tsx
+================
+import { Tabs } from 'expo-router';
+import React from 'react';
+import { Platform } from 'react-native';
+
+import { HapticTab } from '@/components/HapticTab';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import TabBarBackground from '@/components/ui/TabBarBackground';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+
+export default function TabLayout() {
+  const colorScheme = useColorScheme();
+
+  return (
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        headerShown: false,
+        tabBarButton: HapticTab,
+        tabBarBackground: TabBarBackground,
+        tabBarStyle: Platform.select({
+          ios: {
+            // Use a transparent background on iOS to show the blur effect
+            position: 'absolute',
+          },
+          default: {},
+        }),
+      }}>
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Home',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="templates"
+        options={{
+          title: 'Templates',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="doc.text.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="start-workout"
+        options={{
+          title: 'Start',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="play.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="active-workout"
+        options={{
+          title: 'Workout',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="stopwatch.fill" color={color} />,
+          href: null, // Only accessible when a workout is active
+        }}
+      />
+      <Tabs.Screen
+        name="progress"
+        options={{
+          title: 'Progress',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="chart.bar.fill" color={color} />,
+        }}
+      />
+    </Tabs>
+  );
+}
+
+================
+File: app/(tabs)/active-workout.tsx
+================
+import { router } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  Alert,
+  TextInput,
+  Modal,
+  Animated,
+  Easing,
+  ActivityIndicator,
+} from 'react-native';
+
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { Colors } from '@/constants/Colors';
+import { useWorkout } from '@/context/WorkoutContext';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { useThemeColor } from '@/hooks/useThemeColor';
+import { Exercise, exerciseService } from '@/services/exercise.service';
+import { workoutService, WorkoutExercise, WorkoutSet } from '@/services/workout.service';
+
+export default function ActiveWorkoutScreen() {
+  const {
+    activeWorkout,
+    currentExerciseIndex,
+    isRestTimerActive,
+    restTimeRemaining,
+    isLoading,
+    navigateToExercise,
+    startExercise,
+    completeExercise,
+    logSet,
+    startRestTimer,
+    skipRestTimer,
+    completeWorkout,
+    refreshWorkout,
+  } = useWorkout();
+  const colorScheme = useColorScheme() ?? 'light';
+  const [showExerciseSelector, setShowExerciseSelector] = useState(false);
+  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [isLoadingExercises, setIsLoadingExercises] = useState(false);
+  const [confirmEndWorkout, setConfirmEndWorkout] = useState(false);
+  const [newSetWeight, setNewSetWeight] = useState('0');
+  const [newSetReps, setNewSetReps] = useState('0');
+  const [newSetRPE, setNewSetRPE] = useState('');
+  const [notes, setNotes] = useState('');
+  const [exitAnimatedValue] = useState(new Animated.Value(0));
+
+  useEffect(() => {
+    // Redirect to home if no active workout
+    if (!activeWorkout) {
+      router.replace('/');
+      return;
+    }
+
+    // Refresh workout data
+    refreshWorkout();
+  }, [activeWorkout]);
+
+  useEffect(() => {
+    // Reset form fields when changing exercises
+    if (activeWorkout?.exercises?.[currentExerciseIndex]) {
+      // Get previous weights if there are logged sets
+      const currentExercise = activeWorkout.exercises[currentExerciseIndex];
+      if (currentExercise.sets && currentExercise.sets.length > 0) {
+        const lastSet = currentExercise.sets[currentExercise.sets.length - 1];
+        setNewSetWeight(lastSet.weight.toString());
+        setNewSetReps('0');
+      } else {
+        setNewSetWeight('0');
+        setNewSetReps('0');
+      }
+      setNewSetRPE('');
+      setNotes('');
+    }
+  }, [currentExerciseIndex, activeWorkout]);
+
+  const handleAddExercise = () => {
+    setShowExerciseSelector(true);
+    fetchExercises();
+  };
+
+  const fetchExercises = async () => {
+    try {
+      setIsLoadingExercises(true);
+      const data = await exerciseService.getExercises();
+      setExercises(data);
+    } catch (error) {
+      console.error('Failed to fetch exercises:', error);
+      Alert.alert('Error', 'Failed to load exercises');
+    } finally {
+      setIsLoadingExercises(false);
+    }
+  };
+
+  const handleSelectExercise = async (exercise: Exercise) => {
+    if (!activeWorkout) return;
+
+    try {
+      // Add exercise to the workout
+      const nextOrder = activeWorkout.exercises
+        ? Math.max(...activeWorkout.exercises.map((e) => e.order)) + 1
+        : 1;
+
+      await workoutService.addExercise(activeWorkout.id, {
+        exercise_id: exercise.id,
+        order: nextOrder,
+      });
+
+      // Refresh workout data
+      await refreshWorkout();
+      setShowExerciseSelector(false);
+
+      // Navigate to the new exercise
+      if (activeWorkout.exercises) {
+        navigateToExercise(activeWorkout.exercises.length - 1);
+      }
+    } catch (error) {
+      console.error('Failed to add exercise:', error);
+      Alert.alert('Error', 'Failed to add exercise to workout');
+    }
+  };
+
+  const handleLogSet = async () => {
+    if (!activeWorkout || !activeWorkout.exercises) return;
+
+    const currentExercise = activeWorkout.exercises[currentExerciseIndex];
+    
+    try {
+      const weight = parseFloat(newSetWeight) || 0;
+      const reps = parseInt(newSetReps) || 0;
+      const rpe = newSetRPE ? parseInt(newSetRPE) : undefined;
+      
+      const nextSetNumber = (currentExercise.sets?.length || 0) + 1;
+      
+      await logSet(currentExercise.id, {
+        set_number: nextSetNumber,
+        reps_completed: reps,
+        weight: weight,
+        is_warmup: false,
+        rpe: rpe,
+        notes: notes || undefined,
+      });
+      
+      // Start rest timer (default 90 seconds)
+      await startRestTimer(currentExercise.id, currentExercise.id, 90);
+      
+      // Reset input fields
+      setNewSetReps('0');
+      setNewSetRPE('');
+      setNotes('');
+    } catch (error) {
+      console.error('Failed to log set:', error);
+      Alert.alert('Error', 'Failed to log set');
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
+  // Animation for rest timer
+  useEffect(() => {
+    if (isRestTimerActive) {
+      Animated.timing(exitAnimatedValue, {
+        toValue: 100,
+        duration: restTimeRemaining * 1000,
+        easing: Easing.linear,
+        useNativeDriver: false,
+      }).start();
+    } else {
+      exitAnimatedValue.setValue(0);
+    }
+  }, [isRestTimerActive, restTimeRemaining]);
+
+  const progressWidth = exitAnimatedValue.interpolate({
+    inputRange: [0, 100],
+    outputRange: ['0%', '100%'],
+  });
+
+  // If no workout is active, show a message
+  if (!activeWorkout) {
+    return (
+      <ThemedView style={[styles.container, styles.centered]}>
+        <ThemedText>No active workout</ThemedText>
+        <TouchableOpacity
+          style={styles.startWorkoutButton}
+          onPress={() => router.push('/start-workout')}>
+          <ThemedText style={styles.startWorkoutButtonText}>Start Workout</ThemedText>
+        </TouchableOpacity>
+      </ThemedView>
+    );
+  }
+
+  // If no exercises in the workout, show option to add
+  if (!activeWorkout.exercises || activeWorkout.exercises.length === 0) {
+    return (
+      <ThemedView style={styles.container}>
+        <ThemedView style={styles.header}>
+          <ThemedText type="title">{activeWorkout.name}</ThemedText>
+        </ThemedView>
+        
+        <ThemedView style={[styles.centered, { flex: 1 }]}>
+          <ThemedText style={styles.emptyText}>No exercises added yet</ThemedText>
+          <TouchableOpacity
+            style={styles.addExerciseButton}
+            onPress={handleAddExercise}>
+            <IconSymbol name="plus.circle.fill" size={20} color="white" />
+            <ThemedText style={styles.addExerciseButtonText}>Add Exercise</ThemedText>
+          </TouchableOpacity>
+        </ThemedView>
+        
+        <TouchableOpacity
+          style={styles.endWorkoutButton}
+          onPress={() => setConfirmEndWorkout(true)}>
+          <ThemedText style={styles.endWorkoutButtonText}>End Workout</ThemedText>
+        </TouchableOpacity>
+      </ThemedView>
+    );
+  }
+
+  const currentExercise = activeWorkout.exercises[currentExerciseIndex];
+
+  // Render the exercise selector modal
+  if (showExerciseSelector) {
+    return (
+      <ThemedView style={styles.container}>
+        <ThemedView style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => setShowExerciseSelector(false)}>
+            <IconSymbol name="arrow.left" size={24} color={useThemeColor({}, 'text')} />
+          </TouchableOpacity>
+          <ThemedText type="title">Select Exercise</ThemedText>
+        </ThemedView>
+
+        {isLoadingExercises ? (
+          <ThemedView style={styles.centered}>
+            <ThemedText>Loading exercises...</ThemedText>
+          </ThemedView>
+        ) : (
+          <FlatList
+            data={exercises}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.exerciseListItem}
+                onPress={() => handleSelectExercise(item)}>
+                <ThemedView>
+                  <ThemedText style={styles.exerciseName}>{item.name}</ThemedText>
+                  <ThemedText style={styles.exerciseDetail}>
+                    {item.target_muscle_group} • {item.primary_equipment}
+                  </ThemedText>
+                </ThemedView>
+                <IconSymbol name="plus.circle.fill" size={20} color={useThemeColor({}, 'tint')} />
+              </TouchableOpacity>
+            )}
+          />
+        )}
+      </ThemedView>
+    );
+  }
+
+  return (
+    <ThemedView style={styles.container}>
+      {/* Workout header */}
+      <ThemedView style={styles.header}>
+        <ThemedText type="title">{activeWorkout.name}</ThemedText>
+        <TouchableOpacity
+          style={styles.addExerciseIcon}
+          onPress={handleAddExercise}>
+          <IconSymbol name="plus.circle.fill" size={28} color={useThemeColor({}, 'tint')} />
+        </TouchableOpacity>
+      </ThemedView>
+
+      {/* Exercise navigation tabs */}
+      <FlatList
+        data={activeWorkout.exercises}
+        keyExtractor={(item) => item.id}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        renderItem={({ item, index }) => (
+          <TouchableOpacity
+            style={[
+              styles.exerciseTab,
+              currentExerciseIndex === index && { backgroundColor: useThemeColor({}, 'tint') },
+            ]}
+            onPress={() => navigateToExercise(index)}>
+            <ThemedText
+              style={[
+                styles.exerciseTabText,
+                currentExerciseIndex === index && { color: 'white', fontWeight: 'bold' },
+              ]}>
+              {item.exercise?.name || `Exercise ${index + 1}`}
+            </ThemedText>
+          </TouchableOpacity>
+        )}
+        style={styles.exerciseTabs}
+      />
+
+      {/* Current exercise details */}
+      <ThemedView style={styles.exerciseContainer}>
+        <ThemedView style={styles.exerciseHeader}>
+          <ThemedView>
+            <ThemedText style={styles.exerciseTitle}>
+              {currentExercise.exercise?.name || 'Exercise'}
+            </ThemedText>
+            {currentExercise.exercise?.target_muscle_group && (
+              <ThemedText style={styles.exerciseSubtitle}>
+                {currentExercise.exercise.target_muscle_group} • {currentExercise.exercise.primary_equipment}
+              </ThemedText>
+            )}
+          </ThemedView>
+
+          {!currentExercise.started_at ? (
+            <TouchableOpacity
+              style={styles.startExerciseButton}
+              onPress={() => startExercise(currentExercise.id)}>
+              <ThemedText style={styles.startExerciseButtonText}>Start</ThemedText>
+            </TouchableOpacity>
+          ) : !currentExercise.completed_at ? (
+            <TouchableOpacity
+              style={styles.completeExerciseButton}
+              onPress={() => completeExercise(currentExercise.id)}>
+              <ThemedText style={styles.completeExerciseButtonText}>Complete</ThemedText>
+            </TouchableOpacity>
+          ) : (
+            <ThemedView style={styles.completedBadge}>
+              <IconSymbol name="checkmark.circle.fill" size={16} color="green" />
+              <ThemedText style={styles.completedText}>Completed</ThemedText>
+            </ThemedView>
+          )}
+        </ThemedView>
+
+        {/* Sets history */}
+        <ThemedView style={styles.setsContainer}>
+          <ThemedText style={styles.sectionTitle}>Sets</ThemedText>
+          
+          {currentExercise.sets && currentExercise.sets.length > 0 ? (
+            <ThemedView style={styles.setsTable}>
+              <ThemedView style={styles.setsHeader}>
+                <ThemedText style={[styles.setHeaderText, { flex: 0.5 }]}>Set</ThemedText>
+                <ThemedText style={[styles.setHeaderText, { flex: 1 }]}>Weight</ThemedText>
+                <ThemedText style={[styles.setHeaderText, { flex: 1 }]}>Reps</ThemedText>
+                <ThemedText style={[styles.setHeaderText, { flex: 1 }]}>RPE</ThemedText>
+              </ThemedView>
+              
+              <FlatList
+                data={currentExercise.sets}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <SetHistoryItem set={item} />
+                )}
+                style={styles.setsList}
+              />
+            </ThemedView>
+          ) : (
+            <ThemedText style={styles.noSetsText}>No sets logged yet</ThemedText>
+          )}
+        </ThemedView>
+
+        {/* Log Set Form */}
+        <ThemedView style={styles.logSetContainer}>
+          <ThemedText style={styles.sectionTitle}>Log Set</ThemedText>
+          
+          <ThemedView style={styles.logSetForm}>
+            <ThemedView style={styles.inputRow}>
+              <ThemedView style={[styles.inputContainer, { flex: 1 }]}>
+                <ThemedText style={styles.inputLabel}>Weight</ThemedText>
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: colorScheme === 'dark' ? '#333' : '#f5f5f5',
+                      color: colorScheme === 'dark' ? '#fff' : '#000',
+                    },
+                  ]}
+                  value={newSetWeight}
+                  onChangeText={setNewSetWeight}
+                  keyboardType="decimal-pad"
+                />
+              </ThemedView>
+              
+              <ThemedView style={[styles.inputContainer, { flex: 1 }]}>
+                <ThemedText style={styles.inputLabel}>Reps</ThemedText>
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: colorScheme === 'dark' ? '#333' : '#f5f5f5',
+                      color: colorScheme === 'dark' ? '#fff' : '#000',
+                    },
+                  ]}
+                  value={newSetReps}
+                  onChangeText={setNewSetReps}
+                  keyboardType="number-pad"
+                />
+              </ThemedView>
+              
+              <ThemedView style={[styles.inputContainer, { flex: 1 }]}>
+                <ThemedText style={styles.inputLabel}>RPE (1-10)</ThemedText>
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: colorScheme === 'dark' ? '#333' : '#f5f5f5',
+                      color: colorScheme === 'dark' ? '#fff' : '#000',
+                    },
+                  ]}
+                  value={newSetRPE}
+                  onChangeText={setNewSetRPE}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                  placeholder="Optional"
+                  placeholderTextColor={colorScheme === 'dark' ? '#aaa' : '#777'}
+                />
+              </ThemedView>
+            </ThemedView>
+            
+            <ThemedView style={styles.inputContainer}>
+              <ThemedText style={styles.inputLabel}>Notes (optional)</ThemedText>
+              <TextInput
+                style={[
+                  styles.notesInput,
+                  {
+                    backgroundColor: colorScheme === 'dark' ? '#333' : '#f5f5f5',
+                    color: colorScheme === 'dark' ? '#fff' : '#000',
+                  },
+                ]}
+                value={notes}
+                onChangeText={setNotes}
+                multiline
+                placeholder="Add notes about this set..."
+                placeholderTextColor={colorScheme === 'dark' ? '#aaa' : '#777'}
+              />
+            </ThemedView>
+            
+            <TouchableOpacity
+              style={styles.logSetButton}
+              onPress={handleLogSet}
+              disabled={isLoading}>
+              <ThemedText style={styles.logSetButtonText}>
+                {isLoading ? 'Logging...' : 'Log Set'}
+              </ThemedText>
+            </TouchableOpacity>
+          </ThemedView>
+        </ThemedView>
+      </ThemedView>
+
+      {/* Rest Timer Modal */}
+      <Modal
+        visible={isRestTimerActive}
+        transparent
+        animationType="fade">
+        <ThemedView style={styles.restTimerContainer}>
+          <ThemedView style={styles.restTimerContent}>
+            <IconSymbol name="timer" size={40} color={useThemeColor({}, 'tint')} />
+            <ThemedText style={styles.restTimerTitle}>Rest Time</ThemedText>
+            <ThemedText style={styles.restTimerTime}>{formatTime(restTimeRemaining)}</ThemedText>
+            
+            <ThemedView style={styles.restTimerProgressContainer}>
+              <Animated.View 
+                style={[
+                  styles.restTimerProgress, 
+                  { width: progressWidth, backgroundColor: useThemeColor({}, 'tint') }
+                ]} 
+              />
+            </ThemedView>
+            
+            <TouchableOpacity
+              style={styles.skipButton}
+              onPress={skipRestTimer}>
+              <ThemedText style={styles.skipButtonText}>Skip</ThemedText>
+            </TouchableOpacity>
+          </ThemedView>
+        </ThemedView>
+      </Modal>
+
+      {/* End Workout Button */}
+      <TouchableOpacity
+        style={styles.endWorkoutButton}
+        onPress={() => setConfirmEndWorkout(true)}>
+        <ThemedText style={styles.endWorkoutButtonText}>End Workout</ThemedText>
+      </TouchableOpacity>
+
+      {/* Confirm End Workout Modal */}
+      <Modal
+        visible={confirmEndWorkout}
+        transparent
+        animationType="fade">
+        <ThemedView style={styles.confirmModalContainer}>
+          <ThemedView style={styles.confirmModalContent}>
+            <ThemedText style={styles.confirmModalTitle}>End Workout?</ThemedText>
+            <ThemedText style={styles.confirmModalText}>
+              Are you sure you want to end this workout? This action cannot be undone.
+            </ThemedText>
+            
+            <ThemedView style={styles.confirmModalButtons}>
+              <TouchableOpacity
+                style={[styles.confirmModalButton, styles.cancelButton]}
+                onPress={() => setConfirmEndWorkout(false)}>
+                <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[styles.confirmModalButton, styles.confirmButton]}
+                onPress={() => {
+                  setConfirmEndWorkout(false);
+                  completeWorkout();
+                }}>
+                <ThemedText style={styles.confirmButtonText}>End Workout</ThemedText>
+              </TouchableOpacity>
+            </ThemedView>
+          </ThemedView>
+        </ThemedView>
+      </Modal>
+    </ThemedView>
+  );
+}
+
+interface SetHistoryItemProps {
+  set: WorkoutSet;
+}
+
+function SetHistoryItem({ set }: SetHistoryItemProps) {
+  return (
+    <ThemedView style={styles.setItem}>
+      <ThemedText style={[styles.setText, { flex: 0.5 }]}>{set.set_number}</ThemedText>
+      <ThemedText style={[styles.setText, { flex: 1 }]}>{set.weight}</ThemedText>
+      <ThemedText style={[styles.setText, { flex: 1 }]}>{set.reps_completed}</ThemedText>
+      <ThemedText style={[styles.setText, { flex: 1 }]}>{set.rpe || '-'}</ThemedText>
+    </ThemedView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    paddingTop: 60,
+  },
+  centered: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  addExerciseIcon: {
+    padding: 8,
+  },
+  exerciseTabs: {
+    maxHeight: 50,
+    marginBottom: 16,
+  },
+  exerciseTab: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginRight: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  exerciseTabText: {
+    fontWeight: '500',
+  },
+  exerciseContainer: {
+    flex: 1,
+  },
+  exerciseHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  exerciseTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  exerciseSubtitle: {
+    fontSize: 14,
+    opacity: 0.7,
+    marginTop: 4,
+  },
+  startExerciseButton: {
+    backgroundColor: '#0a7ea4',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  startExerciseButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  completeExerciseButton: {
+    backgroundColor: '#4CD964',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  completeExerciseButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  completedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(76, 217, 100, 0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  completedText: {
+    color: 'green',
+    marginLeft: 4,
+    fontWeight: '500',
+  },
+  setsContainer: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 12,
+  },
+  setsTable: {
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+  },
+  setsHeader: {
+    flexDirection: 'row',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  setHeaderText: {
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  setsList: {
+    maxHeight: 200,
+  },
+  setItem: {
+    flexDirection: 'row',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  setText: {
+    fontSize: 14,
+  },
+  noSetsText: {
+    opacity: 0.7,
+    textAlign: 'center',
+    paddingVertical: 20,
+  },
+  logSetContainer: {
+    flex: 1,
+  },
+  logSetForm: {
+    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+    borderRadius: 8,
+    padding: 16,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+    gap: 8,
+  },
+  inputContainer: {
+    marginBottom: 16,
+  },
+  inputLabel: {
+    fontSize: 14,
+    marginBottom: 6,
+    opacity: 0.8,
+  },
+  input: {
+    height: 50,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+  },
+  notesInput: {
+    height: 80,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingTop: 12,
+    textAlignVertical: 'top',
+  },
+  logSetButton: {
+    backgroundColor: '#0a7ea4',
+    height: 50,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logSetButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  endWorkoutButton: {
+    backgroundColor: '#FF3B30',
+    paddingVertical: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  endWorkoutButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  restTimerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  },
+  restTimerContent: {
+    width: '80%',
+    borderRadius: 16,
+    padding: 24,
+    alignItems: 'center',
+  },
+  restTimerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: 16,
+  },
+  restTimerTime: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    marginVertical: 24,
+  },
+  restTimerProgressContainer: {
+    width: '100%',
+    height: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginBottom: 24,
+  },
+  restTimerProgress: {
+    height: '100%',
+  },
+  skipButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  skipButtonText: {
+    fontWeight: 'bold',
+  },
+  confirmModalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  },
+  confirmModalContent: {
+    width: '80%',
+    borderRadius: 16,
+    padding: 24,
+  },
+  confirmModalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  confirmModalText: {
+    marginBottom: 24,
+  },
+  confirmModalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  confirmModalButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginHorizontal: 8,
+  },
+  cancelButton: {
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  cancelButtonText: {
+    fontWeight: 'bold',
+  },
+  confirmButton: {
+    backgroundColor: '#FF3B30',
+  },
+  confirmButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  backButton: {
+    marginRight: 16,
+  },
+  exerciseListItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  exerciseName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  exerciseDetail: {
+    fontSize: 14,
+    opacity: 0.7,
+    marginTop: 4,
+  },
+  emptyText: {
+    fontSize: 16,
+    opacity: 0.7,
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  addExerciseButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0a7ea4',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  addExerciseButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    marginLeft: 8,
+  },
+  startWorkoutButton: {
+    backgroundColor: '#0a7ea4',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginTop: 16,
+  },
+  startWorkoutButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+});
+
+================
+File: app/(tabs)/explore.tsx
+================
+import { StyleSheet, Image, Platform } from 'react-native';
+
+import { Collapsible } from '@/components/Collapsible';
+import { ExternalLink } from '@/components/ExternalLink';
+import ParallaxScrollView from '@/components/ParallaxScrollView';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+
+export default function TabTwoScreen() {
+  return (
+    <ParallaxScrollView
+      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
+      headerImage={
+        <IconSymbol
+          size={310}
+          color="#808080"
+          name="chevron.left.forwardslash.chevron.right"
+          style={styles.headerImage}
+        />
+      }>
+      <ThemedView style={styles.titleContainer}>
+        <ThemedText type="title">Explore</ThemedText>
+      </ThemedView>
+      <ThemedText>This app includes example code to help you get started.</ThemedText>
+      <Collapsible title="File-based routing">
+        <ThemedText>
+          This app has two screens:{' '}
+          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
+          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
+        </ThemedText>
+        <ThemedText>
+          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
+          sets up the tab navigator.
+        </ThemedText>
+        <ExternalLink href="https://docs.expo.dev/router/introduction">
+          <ThemedText type="link">Learn more</ThemedText>
+        </ExternalLink>
+      </Collapsible>
+      <Collapsible title="Android, iOS, and web support">
+        <ThemedText>
+          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
+          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
+        </ThemedText>
+      </Collapsible>
+      <Collapsible title="Images">
+        <ThemedText>
+          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
+          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
+          different screen densities
+        </ThemedText>
+        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
+        <ExternalLink href="https://reactnative.dev/docs/images">
+          <ThemedText type="link">Learn more</ThemedText>
+        </ExternalLink>
+      </Collapsible>
+      <Collapsible title="Custom fonts">
+        <ThemedText>
+          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
+          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
+            custom fonts such as this one.
+          </ThemedText>
+        </ThemedText>
+        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
+          <ThemedText type="link">Learn more</ThemedText>
+        </ExternalLink>
+      </Collapsible>
+      <Collapsible title="Light and dark mode components">
+        <ThemedText>
+          This template has light and dark mode support. The{' '}
+          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
+          what the user's current color scheme is, and so you can adjust UI colors accordingly.
+        </ThemedText>
+        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
+          <ThemedText type="link">Learn more</ThemedText>
+        </ExternalLink>
+      </Collapsible>
+      <Collapsible title="Animations">
+        <ThemedText>
+          This template includes an example of an animated component. The{' '}
+          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
+          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
+          library to create a waving hand animation.
+        </ThemedText>
+        {Platform.select({
+          ios: (
+            <ThemedText>
+              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
+              component provides a parallax effect for the header image.
+            </ThemedText>
+          ),
+        })}
+      </Collapsible>
+    </ParallaxScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  headerImage: {
+    color: '#808080',
+    bottom: -90,
+    left: -35,
+    position: 'absolute',
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+});
+
+================
+File: app/(tabs)/index.tsx
+================
+import { Link, router } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
+} from 'react-native';
+
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { Colors } from '@/constants/Colors';
+import { useAuth } from '@/context/AuthContext';
+import { useWorkout } from '@/context/WorkoutContext';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { useThemeColor } from '@/hooks/useThemeColor';
+import { workoutService, WorkoutSession } from '@/services/workout.service';
+
+export default function HomeScreen() {
+  const { user } = useAuth();
+  const { startWorkout } = useWorkout();
+  const colorScheme = useColorScheme() ?? 'light';
+  
+  const [recentWorkouts, setRecentWorkouts] = useState<WorkoutSession[]>([]);
+  const [isLoadingWorkouts, setIsLoadingWorkouts] = useState(true);
+
+  useEffect(() => {
+    const fetchRecentWorkouts = async () => {
+      try {
+        setIsLoadingWorkouts(true);
+        const workouts = await workoutService.getWorkoutSessions();
+        // Only get the most recent 5 workouts
+        setRecentWorkouts(workouts.slice(0, 5));
+      } catch (error) {
+        console.error('Failed to fetch recent workouts:', error);
+      } finally {
+        setIsLoadingWorkouts(false);
+      }
+    };
+
+    fetchRecentWorkouts();
+  }, []);
+
+  const handleQuickStart = async () => {
+    try {
+      await startWorkout({ name: `Workout ${new Date().toLocaleDateString()}` });
+    } catch (error) {
+      console.error('Failed to start quick workout:', error);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'short', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
+  const formatDuration = (duration: number) => {
+    if (!duration) return '0m';
+    
+    const minutes = Math.floor(duration / 60);
+    const hours = Math.floor(minutes / 60);
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes % 60}m`;
+    }
+    return `${minutes}m`;
+  };
+
+  return (
+    <ThemedView style={styles.container}>
+      <ThemedView style={styles.header}>
+        <ThemedView>
+          <ThemedText type="title">Welcome Back</ThemedText>
+          <ThemedText style={styles.userName}>{user?.name}</ThemedText>
+        </ThemedView>
+      </ThemedView>
+
+      <ThemedView style={styles.quickActions}>
+        <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: useThemeColor({}, 'tint') }]}
+          onPress={handleQuickStart}>
+          <IconSymbol name="play.fill" color="white" size={20} />
+          <ThemedText style={styles.actionButtonText}>Quick Start</ThemedText>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: '#4A90E2' }]}
+          onPress={() => router.push('/start-workout')}>
+          <IconSymbol name="plus.circle.fill" color="white" size={20} />
+          <ThemedText style={styles.actionButtonText}>New Workout</ThemedText>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: '#50C878' }]}
+          onPress={() => router.push('/templates')}>
+          <IconSymbol name="doc.text.fill" color="white" size={20} />
+          <ThemedText style={styles.actionButtonText}>Templates</ThemedText>
+        </TouchableOpacity>
+      </ThemedView>
+
+      <ThemedView style={styles.section}>
+        <ThemedText type="subtitle">Recent Workouts</ThemedText>
+        
+        {isLoadingWorkouts ? (
+          <ActivityIndicator size="large" color={useThemeColor({}, 'tint')} style={styles.loader} />
+        ) : recentWorkouts.length > 0 ? (
+          <FlatList
+            data={recentWorkouts}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.workoutCard}
+                onPress={() => router.push(`/history/${item.id}` as any)}>
+                <ThemedView style={styles.workoutCardContent}>
+                  <ThemedText style={styles.workoutName}>{item.name}</ThemedText>
+                  <ThemedText style={styles.workoutDate}>{formatDate(item.started_at)}</ThemedText>
+                </ThemedView>
+                
+                {item.duration && (
+                  <ThemedView style={styles.durationBadge}>
+                    <IconSymbol name="timer" size={14} color={useThemeColor({}, 'text')} />
+                    <ThemedText style={styles.durationText}>
+                      {formatDuration(item.duration)}
+                    </ThemedText>
+                  </ThemedView>
+                )}
+              </TouchableOpacity>
+            )}
+            style={styles.workoutsList}
+          />
+        ) : (
+          <ThemedView style={styles.emptyState}>
+            <ThemedText style={styles.emptyStateText}>No recent workouts</ThemedText>
+            <TouchableOpacity 
+              style={styles.startWorkoutButton}
+              onPress={() => router.push('/start-workout')}>
+              <ThemedText style={styles.startWorkoutButtonText}>Start Your First Workout</ThemedText>
+            </TouchableOpacity>
+          </ThemedView>
+        )}
+      </ThemedView>
+    </ThemedView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    paddingTop: 60, // Account for status bar
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  userName: {
+    fontSize: 16,
+    opacity: 0.7,
+  },
+  quickActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    borderRadius: 8,
+    flex: 1,
+    marginHorizontal: 4,
+  },
+  actionButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    marginLeft: 8,
+    fontSize: 14,
+  },
+  section: {
+    marginBottom: 20,
+  },
+  loader: {
+    marginTop: 20,
+  },
+  workoutsList: {
+    marginTop: 12,
+  },
+  workoutCard: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)', // Slight contrast in light mode
+    // For dark mode, we'll rely on the ThemedView background
+  },
+  workoutCardContent: {
+    flex: 1,
+  },
+  workoutName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  workoutDate: {
+    fontSize: 14,
+    opacity: 0.7,
+    marginTop: 4,
+  },
+  durationBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 6,
+    borderRadius: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)', // Subtle background
+  },
+  durationText: {
+    fontSize: 12,
+    marginLeft: 4,
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 30,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    opacity: 0.7,
+    marginBottom: 16,
+  },
+  startWorkoutButton: {
+    padding: 12,
+    backgroundColor: useThemeColor({}, 'tint'),
+    borderRadius: 8,
+  },
+  startWorkoutButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+});
+
+================
+File: app/(tabs)/start-workout.tsx
+================
+import { router } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
+  Alert,
+  TextInput,
+} from 'react-native';
+
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { Colors } from '@/constants/Colors';
+import { useWorkout } from '@/context/WorkoutContext';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { Template, templateService } from '@/services/template.service';
+
+export default function StartWorkoutScreen() {
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [selectedTemplates, setSelectedTemplates] = useState<string[]>([]);
+  const [workoutName, setWorkoutName] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const { startWorkout } = useWorkout();
+  const colorScheme = useColorScheme() ?? 'light';
+
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      try {
+        setIsLoading(true);
+        const data = await templateService.getTemplates();
+        setTemplates(data);
+        
+        // Auto-generate a workout name based on current date
+        const today = new Date();
+        setWorkoutName(`Workout - ${today.toLocaleDateString()}`);
+      } catch (error) {
+        console.error('Failed to fetch templates:', error);
+        Alert.alert('Error', 'Failed to load workout templates');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTemplates();
+  }, []);
+
+  const handleSelectTemplate = (id: string) => {
+    if (selectedTemplates.includes(id)) {
+      setSelectedTemplates(selectedTemplates.filter((templateId) => templateId !== id));
+    } else {
+      setSelectedTemplates([...selectedTemplates, id]);
+    }
+  };
+
+  const handleStartWorkout = async () => {
+    if (selectedTemplates.length === 0) {
+      Alert.alert('Select Template', 'Please select at least one template to start a workout');
+      return;
+    }
+
+    try {
+      await startWorkout({
+        name: workoutName,
+        template_ids: selectedTemplates,
+      });
+      // Navigation is handled in the workout context
+    } catch (error) {
+      console.error('Failed to start workout:', error);
+      Alert.alert('Error', 'Failed to start workout. Please try again.');
+    }
+  };
+
+  const handleEmptyWorkout = async () => {
+    try {
+      await startWorkout({
+        name: workoutName,
+      });
+      // Navigation is handled in the workout context
+    } catch (error) {
+      console.error('Failed to start empty workout:', error);
+      Alert.alert('Error', 'Failed to start workout. Please try again.');
+    }
+  };
+
+  return (
+    <ThemedView style={styles.container}>
+      <ThemedView style={styles.header}>
+        <ThemedText type="title">Start a Workout</ThemedText>
+      </ThemedView>
+
+      <ThemedView style={styles.nameContainer}>
+        <ThemedText style={styles.label}>Workout Name</ThemedText>
+        <TextInput
+          style={[
+            styles.input,
+            {
+              backgroundColor: colorScheme === 'dark' ? '#333' : '#f5f5f5',
+              color: colorScheme === 'dark' ? '#fff' : '#000',
+            },
+          ]}
+          value={workoutName}
+          onChangeText={setWorkoutName}
+          placeholder="Enter workout name"
+          placeholderTextColor={colorScheme === 'dark' ? '#aaa' : '#777'}
+        />
+      </ThemedView>
+
+      <ThemedView style={styles.templatesSection}>
+        <ThemedText type="subtitle">Select Templates</ThemedText>
+        <ThemedText style={styles.subheading}>
+          Choose one or more templates to include in your workout
+        </ThemedText>
+
+        {isLoading ? (
+          <ActivityIndicator size="large" color={Colors[colorScheme].tint} style={styles.loader} />
+        ) : templates.length > 0 ? (
+          <FlatList
+            data={templates}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <TemplateItem
+                template={item}
+                isSelected={selectedTemplates.includes(item.id)}
+                onSelect={() => handleSelectTemplate(item.id)}
+              />
+            )}
+            style={styles.templatesList}
+            contentContainerStyle={styles.templatesListContent}
+          />
+        ) : (
+          <ThemedView style={styles.emptyState}>
+            <ThemedText style={styles.emptyStateText}>
+              No templates available. Create templates to quickly start workouts.
+            </ThemedText>
+            <TouchableOpacity
+              style={styles.createTemplateButton}
+              onPress={() => router.push('/templates/create')}>
+              <ThemedText style={styles.createTemplateButtonText}>
+                Create Template
+              </ThemedText>
+            </TouchableOpacity>
+          </ThemedView>
+        )}
+      </ThemedView>
+
+      <ThemedView style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.emptyWorkoutButton}
+          onPress={handleEmptyWorkout}>
+          <ThemedText style={styles.emptyWorkoutButtonText}>
+            Start Empty Workout
+          </ThemedText>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.startButton,
+            {
+              opacity: selectedTemplates.length === 0 ? 0.6 : 1,
+            },
+          ]}
+          onPress={handleStartWorkout}
+          disabled={selectedTemplates.length === 0}>
+          <ThemedText style={styles.startButtonText}>
+            Start Workout
+          </ThemedText>
+        </TouchableOpacity>
+      </ThemedView>
+    </ThemedView>
+  );
+}
+
+interface TemplateItemProps {
+  template: Template;
+  isSelected: boolean;
+  onSelect: () => void;
+}
+
+function TemplateItem({ template, isSelected, onSelect }: TemplateItemProps) {
+  const colorScheme = useColorScheme() ?? 'light';
+
+  return (
+    <TouchableOpacity
+      style={[
+        styles.templateItem,
+        isSelected && {
+          borderColor: Colors[colorScheme].tint,
+          borderWidth: 2,
+        },
+      ]}
+      onPress={onSelect}>
+      <ThemedView style={styles.templateContent}>
+        <ThemedText style={styles.templateName}>{template.name}</ThemedText>
+        {template.description ? (
+          <ThemedText style={styles.templateDescription} numberOfLines={1}>
+            {template.description}
+          </ThemedText>
+        ) : null}
+        <ThemedText style={styles.exerciseCount}>
+          {template.exercise_count || 0} exercises
+        </ThemedText>
+      </ThemedView>
+
+      <ThemedView
+        style={[
+          styles.checkboxContainer,
+          isSelected && {
+            backgroundColor: Colors[colorScheme].tint,
+          },
+        ]}>
+        {isSelected && (
+          <IconSymbol name="checkmark.circle.fill" size={20} color="white" />
+        )}
+      </ThemedView>
+    </TouchableOpacity>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    paddingTop: 60,
+  },
+  header: {
+    marginBottom: 24,
+  },
+  nameContainer: {
+    marginBottom: 24,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  input: {
+    width: '100%',
+    height: 50,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+  },
+  templatesSection: {
+    flex: 1,
+  },
+  subheading: {
+    marginBottom: 16,
+    opacity: 0.7,
+  },
+  templatesList: {
+    flex: 1,
+  },
+  templatesListContent: {
+    paddingBottom: 20,
+  },
+  templateItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  templateContent: {
+    flex: 1,
+  },
+  templateName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  templateDescription: {
+    fontSize: 14,
+    opacity: 0.7,
+    marginTop: 4,
+  },
+  exerciseCount: {
+    fontSize: 12,
+    marginTop: 8,
+    opacity: 0.7,
+  },
+  checkboxContainer: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loader: {
+    marginTop: 50,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyStateText: {
+    textAlign: 'center',
+    opacity: 0.7,
+    marginBottom: 16,
+  },
+  createTemplateButton: {
+    backgroundColor: Colors.light.tint,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  createTemplateButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  buttonContainer: {
+    marginTop: 20,
+    gap: 12,
+  },
+  emptyWorkoutButton: {
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  emptyWorkoutButtonText: {
+    fontWeight: 'bold',
+  },
+  startButton: {
+    backgroundColor: Colors.light.tint,
+    paddingVertical: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  startButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+});
+
+================
+File: app/history/[id].tsx
+================
+import { router, useLocalSearchParams } from 'expo-router';
+import React from 'react';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { useThemeColor } from '@/hooks/useThemeColor';
+
+export default function WorkoutHistoryScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+
+  return (
+    <ThemedView style={styles.container}>
+      <ThemedView style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}>
+          <IconSymbol name="arrow.left" size={24} color={useThemeColor({}, 'text')} />
+        </TouchableOpacity>
+        <ThemedText type="title">Workout Details</ThemedText>
+      </ThemedView>
+
+      <ThemedView style={styles.content}>
+        <ThemedText>Viewing workout with ID: {id}</ThemedText>
+        <ThemedText style={styles.placeholder}>Detailed workout view to be implemented</ThemedText>
+      </ThemedView>
+    </ThemedView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    paddingTop: 60,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  backButton: {
+    marginRight: 16,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  placeholder: {
+    marginTop: 12,
+    opacity: 0.7,
+  },
+});
+
+================
+File: app/_layout.tsx
+================
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { useFonts } from 'expo-font';
+import { Stack, useSegments, useRouter } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect, useMemo } from 'react';
+import 'react-native-reanimated';
+
+import { AuthProvider, useAuth } from '@/context/AuthContext';
+import { WorkoutProvider } from '@/context/WorkoutContext';
+import { useColorScheme } from '@/hooks/useColorScheme';
+
+// Prevent the splash screen from auto-hiding before asset loading is complete.
+SplashScreen.preventAutoHideAsync();
+
+// Add an auth guard component
+function AuthGuard({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+
+  useEffect(() => {
+    const inAuthGroup = segments[0] === '(auth)';
+    
+    if (
+      // If the user is not signed in and the initial segment is not in the auth group,
+      // redirect to the sign-in screen.
+      !isAuthenticated && 
+      !inAuthGroup && 
+      segments[0] !== undefined
+    ) {
+      router.replace('/login');
+    } else if (isAuthenticated && inAuthGroup) {
+      // Redirect away from auth screens if the user is already authenticated
+      router.replace('/');
+    }
+  }, [isAuthenticated, segments]);
+
+  return <>{children}</>;
+}
+
+export default function RootLayout() {
+  const colorScheme = useColorScheme();
+  const [loaded] = useFonts({
+    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+  });
+
+  // Create a stable memo for theme to prevent re-renders
+  const theme = useMemo(() => {
+    return colorScheme === 'dark' ? DarkTheme : DefaultTheme;
+  }, [colorScheme]);
+
+  useEffect(() => {
+    if (loaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded]);
+
+  if (!loaded) {
+    return null;
+  }
+
+  return (
+    <ThemeProvider value={theme}>
+      <AuthProvider>
+        <WorkoutProvider>
+          <AuthGuard>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="index" />
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="history" />
+              <Stack.Screen name="+not-found" />
+            </Stack>
+          </AuthGuard>
+        </WorkoutProvider>
+      </AuthProvider>
+      <StatusBar style="auto" />
+    </ThemeProvider>
+  );
+}
+
+================
+File: app/+not-found.tsx
+================
+import { Link, Stack } from 'expo-router';
+import { StyleSheet } from 'react-native';
+
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+
+export default function NotFoundScreen() {
+  return (
+    <>
+      <Stack.Screen options={{ title: 'Oops!' }} />
+      <ThemedView style={styles.container}>
+        <ThemedText type="title">This screen doesn't exist.</ThemedText>
+        <Link href="/" style={styles.link}>
+          <ThemedText type="link">Go to home screen!</ThemedText>
+        </Link>
+      </ThemedView>
+    </>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  link: {
+    marginTop: 15,
+    paddingVertical: 15,
+  },
+});
+
+================
+File: app/index.tsx
+================
+import { Redirect } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+
+import { authService } from '@/services/auth.service';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+
+export default function RootPage() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const colorScheme = useColorScheme() ?? 'light';
+
+  useEffect(() => {
+    // Check if user is authenticated
+    const checkAuth = async () => {
+      try {
+        const isAuth = await authService.isAuthenticated();
+        setIsAuthenticated(isAuth);
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color={Colors[colorScheme].tint} />
+      </View>
+    );
+  }
+
+  // Redirect based on authentication state
+  if (isAuthenticated) {
+    return <Redirect href="/(tabs)" />;
+  } else {
+    return <Redirect href="/login" />;
+  }
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
+
+================
+File: components/__tests__/__snapshots__/ThemedText-test.tsx.snap
+================
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<Text
+  style={
+    [
+      {
+        "color": "#11181C",
+      },
+      {
+        "fontSize": 16,
+        "lineHeight": 24,
+      },
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+    ]
+  }
+>
+  Snapshot test!
+</Text>
+`;
+
+================
+File: components/__tests__/ThemedText-test.tsx
+================
+import * as React from 'react';
+import renderer from 'react-test-renderer';
+
+import { ThemedText } from '../ThemedText';
+
+it(`renders correctly`, () => {
+  const tree = renderer.create(<ThemedText>Snapshot test!</ThemedText>).toJSON();
+
+  expect(tree).toMatchSnapshot();
+});
+
+================
+File: components/ui/IconSymbol.ios.tsx
+================
+import { SymbolView, SymbolViewProps, SymbolWeight } from 'expo-symbols';
+import { StyleProp, ViewStyle } from 'react-native';
+
+export function IconSymbol({
+  name,
+  size = 24,
+  color,
+  style,
+  weight = 'regular',
+}: {
+  name: SymbolViewProps['name'];
+  size?: number;
+  color: string;
+  style?: StyleProp<ViewStyle>;
+  weight?: SymbolWeight;
+}) {
+  return (
+    <SymbolView
+      weight={weight}
+      tintColor={color}
+      resizeMode="scaleAspectFit"
+      name={name}
+      style={[
+        {
+          width: size,
+          height: size,
+        },
+        style,
+      ]}
+    />
+  );
+}
+
+================
+File: components/ui/IconSymbol.tsx
+================
+// This file is a fallback for using MaterialIcons on Android and web.
+
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { SymbolWeight } from 'expo-symbols';
+import React from 'react';
+import { OpaqueColorValue, StyleProp, TextStyle, ViewStyle } from 'react-native';
+
+// Add your SFSymbol to MaterialIcons mappings here.
+const MAPPING = {
+  // See MaterialIcons here: https://icons.expo.fyi
+  // See SF Symbols in the SF Symbols app on Mac.
+  'house.fill': 'home',
+  'paperplane.fill': 'send',
+  'chevron.left.forwardslash.chevron.right': 'code',
+  'chevron.right': 'chevron-right',
+  'doc.text.fill': 'description',
+  'play.fill': 'play-arrow',
+  'stopwatch.fill': 'timer',
+  'chart.bar.fill': 'bar-chart',
+  'plus.circle.fill': 'add-circle',
+  'list.bullet': 'list',
+  'checkmark.circle.fill': 'check-circle',
+  'xmark.circle.fill': 'cancel',
+  'arrow.right': 'arrow-forward',
+  'arrow.left': 'arrow-back',
+  'timer': 'timer',
+  'pencil': 'edit',
+  'trash': 'delete',
+} as Partial<
+  Record<
+    import('expo-symbols').SymbolViewProps['name'],
+    React.ComponentProps<typeof MaterialIcons>['name']
+  >
+>;
+
+export type IconSymbolName = keyof typeof MAPPING;
+
+/**
+ * An icon component that uses native SFSymbols on iOS, and MaterialIcons on Android and web. This ensures a consistent look across platforms, and optimal resource usage.
+ *
+ * Icon `name`s are based on SFSymbols and require manual mapping to MaterialIcons.
+ */
+export function IconSymbol({
+  name,
+  size = 24,
+  color,
+  style,
+}: {
+  name: IconSymbolName;
+  size?: number;
+  color: string | OpaqueColorValue;
+  style?: StyleProp<ViewStyle>;
+  weight?: SymbolWeight;
+}) {
+  return <MaterialIcons color={color} size={size} name={MAPPING[name]} style={style as StyleProp<TextStyle>} />;
+}
+
+================
+File: components/ui/TabBarBackground.ios.tsx
+================
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { BlurView } from 'expo-blur';
+import { StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+export default function BlurTabBarBackground() {
+  return (
+    <BlurView
+      // System chrome material automatically adapts to the system's theme
+      // and matches the native tab bar appearance on iOS.
+      tint="systemChromeMaterial"
+      intensity={100}
+      style={StyleSheet.absoluteFill}
+    />
+  );
+}
+
+export function useBottomTabOverflow() {
+  const tabHeight = useBottomTabBarHeight();
+  const { bottom } = useSafeAreaInsets();
+  return tabHeight - bottom;
+}
+
+================
+File: components/ui/TabBarBackground.tsx
+================
+// This is a shim for web and Android where the tab bar is generally opaque.
+export default undefined;
+
+export function useBottomTabOverflow() {
+  return 0;
+}
+
+================
+File: components/Collapsible.tsx
+================
+import { PropsWithChildren, useState } from 'react';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+
+export function Collapsible({ children, title }: PropsWithChildren & { title: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const theme = useColorScheme() ?? 'light';
+
+  return (
+    <ThemedView>
+      <TouchableOpacity
+        style={styles.heading}
+        onPress={() => setIsOpen((value) => !value)}
+        activeOpacity={0.8}>
+        <IconSymbol
+          name="chevron.right"
+          size={18}
+          weight="medium"
+          color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
+          style={{ transform: [{ rotate: isOpen ? '90deg' : '0deg' }] }}
+        />
+
+        <ThemedText type="defaultSemiBold">{title}</ThemedText>
+      </TouchableOpacity>
+      {isOpen && <ThemedView style={styles.content}>{children}</ThemedView>}
+    </ThemedView>
+  );
+}
+
+const styles = StyleSheet.create({
+  heading: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  content: {
+    marginTop: 6,
+    marginLeft: 24,
+  },
+});
+
+================
+File: components/ExternalLink.tsx
+================
+import { Link } from 'expo-router';
+import { openBrowserAsync } from 'expo-web-browser';
+import { type ComponentProps } from 'react';
+import { Platform } from 'react-native';
+
+type Props = Omit<ComponentProps<typeof Link>, 'href'> & { href: string };
+
+export function ExternalLink({ href, ...rest }: Props) {
+  return (
+    <Link
+      target="_blank"
+      {...rest}
+      href={href}
+      onPress={async (event) => {
+        if (Platform.OS !== 'web') {
+          // Prevent the default behavior of linking to the default browser on native.
+          event.preventDefault();
+          // Open the link in an in-app browser.
+          await openBrowserAsync(href);
+        }
+      }}
+    />
+  );
+}
+
+================
+File: components/HapticTab.tsx
+================
+import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
+import { PlatformPressable } from '@react-navigation/elements';
+import * as Haptics from 'expo-haptics';
+
+export function HapticTab(props: BottomTabBarButtonProps) {
+  return (
+    <PlatformPressable
+      {...props}
+      onPressIn={(ev) => {
+        if (process.env.EXPO_OS === 'ios') {
+          // Add a soft haptic feedback when pressing down on the tabs.
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
+        props.onPressIn?.(ev);
+      }}
+    />
+  );
+}
+
+================
+File: components/HelloWave.tsx
+================
+import { useEffect } from 'react';
+import { StyleSheet } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withRepeat,
+  withSequence,
+} from 'react-native-reanimated';
+
+import { ThemedText } from '@/components/ThemedText';
+
+export function HelloWave() {
+  const rotationAnimation = useSharedValue(0);
+
+  useEffect(() => {
+    rotationAnimation.value = withRepeat(
+      withSequence(withTiming(25, { duration: 150 }), withTiming(0, { duration: 150 })),
+      4 // Run the animation 4 times
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rotationAnimation.value}deg` }],
+  }));
+
+  return (
+    <Animated.View style={animatedStyle}>
+      <ThemedText style={styles.text}>👋</ThemedText>
+    </Animated.View>
+  );
+}
+
+const styles = StyleSheet.create({
+  text: {
+    fontSize: 28,
+    lineHeight: 32,
+    marginTop: -6,
+  },
+});
+
+================
+File: components/ParallaxScrollView.tsx
+================
+import type { PropsWithChildren, ReactElement } from 'react';
+import { StyleSheet } from 'react-native';
+import Animated, {
+  interpolate,
+  useAnimatedRef,
+  useAnimatedStyle,
+  useScrollViewOffset,
+} from 'react-native-reanimated';
+
+import { ThemedView } from '@/components/ThemedView';
+import { useBottomTabOverflow } from '@/components/ui/TabBarBackground';
+import { useColorScheme } from '@/hooks/useColorScheme';
+
+const HEADER_HEIGHT = 250;
+
+type Props = PropsWithChildren<{
+  headerImage: ReactElement;
+  headerBackgroundColor: { dark: string; light: string };
+}>;
+
+export default function ParallaxScrollView({
+  children,
+  headerImage,
+  headerBackgroundColor,
+}: Props) {
+  const colorScheme = useColorScheme() ?? 'light';
+  const scrollRef = useAnimatedRef<Animated.ScrollView>();
+  const scrollOffset = useScrollViewOffset(scrollRef);
+  const bottom = useBottomTabOverflow();
+  const headerAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateY: interpolate(
+            scrollOffset.value,
+            [-HEADER_HEIGHT, 0, HEADER_HEIGHT],
+            [-HEADER_HEIGHT / 2, 0, HEADER_HEIGHT * 0.75]
+          ),
+        },
+        {
+          scale: interpolate(scrollOffset.value, [-HEADER_HEIGHT, 0, HEADER_HEIGHT], [2, 1, 1]),
+        },
+      ],
+    };
+  });
+
+  return (
+    <ThemedView style={styles.container}>
+      <Animated.ScrollView
+        ref={scrollRef}
+        scrollEventThrottle={16}
+        scrollIndicatorInsets={{ bottom }}
+        contentContainerStyle={{ paddingBottom: bottom }}>
+        <Animated.View
+          style={[
+            styles.header,
+            { backgroundColor: headerBackgroundColor[colorScheme] },
+            headerAnimatedStyle,
+          ]}>
+          {headerImage}
+        </Animated.View>
+        <ThemedView style={styles.content}>{children}</ThemedView>
+      </Animated.ScrollView>
+    </ThemedView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  header: {
+    height: HEADER_HEIGHT,
+    overflow: 'hidden',
+  },
+  content: {
+    flex: 1,
+    padding: 32,
+    gap: 16,
+    overflow: 'hidden',
+  },
+});
+
+================
+File: components/ThemedText.tsx
+================
+import { Text, type TextProps, StyleSheet } from 'react-native';
+
+import { useThemeColor } from '@/hooks/useThemeColor';
+
+export type ThemedTextProps = TextProps & {
+  lightColor?: string;
+  darkColor?: string;
+  type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link';
+};
+
+export function ThemedText({
+  style,
+  lightColor,
+  darkColor,
+  type = 'default',
+  ...rest
+}: ThemedTextProps) {
+  const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+
+  return (
+    <Text
+      style={[
+        { color },
+        type === 'default' ? styles.default : undefined,
+        type === 'title' ? styles.title : undefined,
+        type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
+        type === 'subtitle' ? styles.subtitle : undefined,
+        type === 'link' ? styles.link : undefined,
+        style,
+      ]}
+      {...rest}
+    />
+  );
+}
+
+const styles = StyleSheet.create({
+  default: {
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  defaultSemiBold: {
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '600',
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    lineHeight: 32,
+  },
+  subtitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  link: {
+    lineHeight: 30,
+    fontSize: 16,
+    color: '#0a7ea4',
+  },
+});
+
+================
+File: components/ThemedView.tsx
+================
+import { View, type ViewProps } from 'react-native';
+
+import { useThemeColor } from '@/hooks/useThemeColor';
+
+export type ThemedViewProps = ViewProps & {
+  lightColor?: string;
+  darkColor?: string;
+};
+
+export function ThemedView({ style, lightColor, darkColor, ...otherProps }: ThemedViewProps) {
+  const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
+
+  return <View style={[{ backgroundColor }, style]} {...otherProps} />;
+}
+
+================
+File: constants/Colors.ts
+================
+/**
+ * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
+ * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ */
+
+const tintColorLight = '#0a7ea4';
+const tintColorDark = '#fff';
+
+export const Colors = {
+  light: {
+    text: '#11181C',
+    background: '#fff',
+    tint: tintColorLight,
+    icon: '#687076',
+    tabIconDefault: '#687076',
+    tabIconSelected: tintColorLight,
+  },
+  dark: {
+    text: '#ECEDEE',
+    background: '#151718',
+    tint: tintColorDark,
+    icon: '#9BA1A6',
+    tabIconDefault: '#9BA1A6',
+    tabIconSelected: tintColorDark,
+  },
+};
+
+================
+File: context/AuthContext.tsx
+================
+import { router } from 'expo-router';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { Alert } from 'react-native';
+
+import { authService, User, LoginData, RegisterData, UpdateProfileData } from '../services/auth.service';
+
+interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  login: (data: LoginData) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
+  logout: () => Promise<void>;
+  updateProfile: (data: UpdateProfileData) => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Check if user is authenticated on app load
+    const checkAuth = async () => {
+      try {
+        const isAuth = await authService.isAuthenticated();
+        setIsAuthenticated(isAuth);
+        
+        if (isAuth) {
+          const userData = await authService.getCurrentUser();
+          setUser(userData);
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        // Clear any invalid auth state
+        await authService.logout();
+        setIsAuthenticated(false);
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  const login = async (data: LoginData) => {
+    try {
+      setIsLoading(true);
+      const response = await authService.login(data);
+      setUser({
+        id: response.id,
+        name: response.name,
+        email: response.email,
+      });
+      setIsAuthenticated(true);
+      router.replace('/(tabs)');
+    } catch (error) {
+      console.error('Login failed:', error);
+      Alert.alert('Login Failed', 'Please check your credentials and try again.');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const register = async (data: RegisterData) => {
+    try {
+      setIsLoading(true);
+      const response = await authService.register(data);
+      setUser({
+        id: response.id,
+        name: response.name,
+        email: response.email,
+      });
+      setIsAuthenticated(true);
+      router.replace('/(tabs)');
+    } catch (error) {
+      console.error('Registration failed:', error);
+      Alert.alert('Registration Failed', 'Please check your information and try again.');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      setIsLoading(true);
+      await authService.logout();
+      setUser(null);
+      setIsAuthenticated(false);
+      router.replace('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateProfile = async (data: UpdateProfileData) => {
+    try {
+      setIsLoading(true);
+      const updatedUser = await authService.updateProfile(data);
+      setUser(updatedUser);
+      Alert.alert('Success', 'Your profile has been updated.');
+    } catch (error) {
+      console.error('Profile update failed:', error);
+      Alert.alert('Update Failed', 'Failed to update your profile.');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        isAuthenticated,
+        login,
+        register,
+        logout,
+        updateProfile,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
+
+================
+File: context/WorkoutContext.tsx
+================
+import { router } from 'expo-router';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { Alert } from 'react-native';
+
+import {
+  workoutService,
+  WorkoutSession,
+  WorkoutExercise,
+  WorkoutSet,
+  WorkoutSessionCreateData,
+  WorkoutExerciseCreateData,
+  WorkoutSetCreateData,
+  WorkoutSetUpdateData,
+} from '@/services/workout.service';
+
+interface WorkoutContextType {
+  activeWorkout: WorkoutSession | null;
+  currentExerciseIndex: number;
+  isLoading: boolean;
+  isRestTimerActive: boolean;
+  restTimeRemaining: number;
+  startWorkout: (data: WorkoutSessionCreateData) => Promise<void>;
+  completeWorkout: () => Promise<void>;
+  addExercise: (data: WorkoutExerciseCreateData) => Promise<void>;
+  startExercise: (exerciseId: string) => Promise<void>;
+  completeExercise: (exerciseId: string) => Promise<void>;
+  navigateToExercise: (index: number) => void;
+  logSet: (exerciseId: string, data: WorkoutSetCreateData) => Promise<void>;
+  updateSet: (exerciseId: string, setId: string, data: WorkoutSetUpdateData) => Promise<void>;
+  startRestTimer: (exerciseId: string, setId: string, duration: number) => Promise<void>;
+  skipRestTimer: () => void;
+  refreshWorkout: () => Promise<void>;
+}
+
+const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
+
+export function WorkoutProvider({ children }: { children: ReactNode }) {
+  const [activeWorkout, setActiveWorkout] = useState<WorkoutSession | null>(null);
+  const [currentExerciseIndex, setCurrentExerciseIndex] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isRestTimerActive, setIsRestTimerActive] = useState<boolean>(false);
+  const [restTimeRemaining, setRestTimeRemaining] = useState<number>(0);
+  const [restTimerId, setRestTimerId] = useState<NodeJS.Timeout | null>(null);
+
+  // Clean up timer when component unmounts
+  useEffect(() => {
+    return () => {
+      if (restTimerId) {
+        clearInterval(restTimerId);
+      }
+    };
+  }, [restTimerId]);
+
+  const startWorkout = async (data: WorkoutSessionCreateData) => {
+    try {
+      setIsLoading(true);
+      const workout = await workoutService.startWorkout(data);
+      setActiveWorkout(workout);
+      setCurrentExerciseIndex(0);
+      router.replace('/active-workout');
+    } catch (error) {
+      console.error('Failed to start workout:', error);
+      Alert.alert('Error', 'Failed to start workout. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const refreshWorkout = async () => {
+    if (!activeWorkout) return;
+    
+    try {
+      setIsLoading(true);
+      const workout = await workoutService.getWorkoutSession(activeWorkout.id);
+      setActiveWorkout(workout);
+    } catch (error) {
+      console.error('Failed to refresh workout:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const completeWorkout = async () => {
+    if (!activeWorkout) return;
+    
+    try {
+      setIsLoading(true);
+      await workoutService.completeWorkout(activeWorkout.id);
+      setActiveWorkout(null);
+      setCurrentExerciseIndex(0);
+      
+      // Stop any active rest timer
+      if (restTimerId) {
+        clearInterval(restTimerId);
+        setRestTimerId(null);
+        setIsRestTimerActive(false);
+      }
+      
+      router.replace('/');
+      Alert.alert('Workout Completed', 'Great job! Your workout has been saved.');
+    } catch (error) {
+      console.error('Failed to complete workout:', error);
+      Alert.alert('Error', 'Failed to complete workout. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const addExercise = async (data: WorkoutExerciseCreateData) => {
+    if (!activeWorkout) return;
+    
+    try {
+      setIsLoading(true);
+      await workoutService.addExercise(activeWorkout.id, data);
+      await refreshWorkout();
+    } catch (error) {
+      console.error('Failed to add exercise:', error);
+      Alert.alert('Error', 'Failed to add exercise. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const startExercise = async (exerciseId: string) => {
+    if (!activeWorkout) return;
+    
+    try {
+      setIsLoading(true);
+      await workoutService.startExercise(activeWorkout.id, exerciseId);
+      await refreshWorkout();
+    } catch (error) {
+      console.error('Failed to start exercise:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const completeExercise = async (exerciseId: string) => {
+    if (!activeWorkout) return;
+    
+    try {
+      setIsLoading(true);
+      await workoutService.completeExercise(activeWorkout.id, exerciseId);
+      await refreshWorkout();
+      
+      // Move to next exercise if available
+      if (activeWorkout.exercises && currentExerciseIndex < activeWorkout.exercises.length - 1) {
+        setCurrentExerciseIndex(currentExerciseIndex + 1);
+      }
+    } catch (error) {
+      console.error('Failed to complete exercise:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const navigateToExercise = (index: number) => {
+    if (!activeWorkout || !activeWorkout.exercises) return;
+    
+    if (index >= 0 && index < activeWorkout.exercises.length) {
+      setCurrentExerciseIndex(index);
+    }
+  };
+
+  const logSet = async (exerciseId: string, data: WorkoutSetCreateData) => {
+    if (!activeWorkout) return;
+    
+    try {
+      setIsLoading(true);
+      await workoutService.logSet(activeWorkout.id, exerciseId, data);
+      await refreshWorkout();
+    } catch (error) {
+      console.error('Failed to log set:', error);
+      Alert.alert('Error', 'Failed to log set. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateSet = async (exerciseId: string, setId: string, data: WorkoutSetUpdateData) => {
+    if (!activeWorkout) return;
+    
+    try {
+      setIsLoading(true);
+      await workoutService.updateSet(activeWorkout.id, exerciseId, setId, data);
+      await refreshWorkout();
+    } catch (error) {
+      console.error('Failed to update set:', error);
+      Alert.alert('Error', 'Failed to update set. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const startRestTimer = async (exerciseId: string, setId: string, duration: number) => {
+    if (!activeWorkout) return;
+    
+    try {
+      // Start rest timer in the backend
+      await workoutService.startRestTimer(activeWorkout.id, exerciseId, setId);
+      
+      // Start local countdown timer
+      setRestTimeRemaining(duration);
+      setIsRestTimerActive(true);
+      
+      // Clear any existing timer
+      if (restTimerId) {
+        clearInterval(restTimerId);
+      }
+      
+      // Set up the interval for counting down
+      const timerId = setInterval(() => {
+        setRestTimeRemaining((prevTime) => {
+          if (prevTime <= 1) {
+            // Time's up, clear the interval and mark rest as completed
+            clearInterval(timerId);
+            setIsRestTimerActive(false);
+            setRestTimerId(null);
+            workoutService.endRestTimer(activeWorkout.id, exerciseId, setId)
+              .catch(error => console.error('Failed to end rest timer:', error));
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+      
+      setRestTimerId(timerId);
+      
+    } catch (error) {
+      console.error('Failed to start rest timer:', error);
+    }
+  };
+
+  const skipRestTimer = () => {
+    if (restTimerId) {
+      clearInterval(restTimerId);
+      setRestTimerId(null);
+      setIsRestTimerActive(false);
+      setRestTimeRemaining(0);
+      
+      // If we have an active workout, find the current exercise and its current set to end the rest timer
+      if (activeWorkout && activeWorkout.exercises && activeWorkout.exercises[currentExerciseIndex]) {
+        const exercise = activeWorkout.exercises[currentExerciseIndex];
+        if (exercise.sets && exercise.sets.length > 0) {
+          // Find the latest set with an active rest timer
+          const setWithRestTimer = [...exercise.sets]
+            .reverse()
+            .find(set => set.rest_start_time && !set.rest_end_time);
+            
+          if (setWithRestTimer) {
+            workoutService.endRestTimer(activeWorkout.id, exercise.id, setWithRestTimer.id)
+              .catch(error => console.error('Failed to end rest timer after skip:', error));
+          }
+        }
+      }
+    }
+  };
+
+  return (
+    <WorkoutContext.Provider
+      value={{
+        activeWorkout,
+        currentExerciseIndex,
+        isLoading,
+        isRestTimerActive,
+        restTimeRemaining,
+        startWorkout,
+        completeWorkout,
+        addExercise,
+        startExercise,
+        completeExercise,
+        navigateToExercise,
+        logSet,
+        updateSet,
+        startRestTimer,
+        skipRestTimer,
+        refreshWorkout,
+      }}
+    >
+      {children}
+    </WorkoutContext.Provider>
+  );
+}
+
+export function useWorkout() {
+  const context = useContext(WorkoutContext);
+  if (context === undefined) {
+    throw new Error('useWorkout must be used within a WorkoutProvider');
+  }
+  return context;
+}
+
+================
+File: hooks/useColorScheme.ts
+================
+export { useColorScheme } from 'react-native';
+
+================
+File: hooks/useColorScheme.web.ts
+================
+import { useEffect, useState } from 'react';
+import { useColorScheme as useRNColorScheme } from 'react-native';
+
+/**
+ * To support static rendering, this value needs to be re-calculated on the client side for web
+ */
+function useWebColorScheme() {
+  const [hasHydrated, setHasHydrated] = useState(false);
+  const colorScheme = useRNColorScheme();
+
+  useEffect(() => {
+    setHasHydrated(true);
+  }, []);
+
+  if (hasHydrated) {
+    return colorScheme;
+  }
+
+  return 'light';
+}
+
+export { useWebColorScheme as useColorScheme };
+
+================
+File: hooks/useThemeColor.ts
+================
+/**
+ * Learn more about light and dark modes:
+ * https://docs.expo.dev/guides/color-schemes/
+ */
+
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+
+export function useThemeColor(
+  props: { light?: string; dark?: string },
+  colorName: keyof typeof Colors.light & keyof typeof Colors.dark
+) {
+  const theme = useColorScheme() ?? 'light';
+  const colorFromProps = props[theme];
+
+  if (colorFromProps) {
+    return colorFromProps;
+  } else {
+    return Colors[theme][colorName];
+  }
+}
+
+================
+File: scripts/reset-project.js
+================
+#!/usr/bin/env node
+
+/**
+ * This script is used to reset the project to a blank state.
+ * It deletes or moves the /app, /components, /hooks, /scripts, and /constants directories to /app-example based on user input and creates a new /app directory with an index.tsx and _layout.tsx file.
+ * You can remove the `reset-project` script from package.json and safely delete this file after running it.
+ */
+
+const fs = require("fs");
+const path = require("path");
+const readline = require("readline");
+
+const root = process.cwd();
+const oldDirs = ["app", "components", "hooks", "constants", "scripts"];
+const exampleDir = "app-example";
+const newAppDir = "app";
+const exampleDirPath = path.join(root, exampleDir);
+
+const indexContent = `import { Text, View } from "react-native";
+
+export default function Index() {
+  return (
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Text>Edit app/index.tsx to edit this screen.</Text>
+    </View>
+  );
+}
+`;
+
+const layoutContent = `import { Stack } from "expo-router";
+
+export default function RootLayout() {
+  return <Stack />;
+}
+`;
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
+
+const moveDirectories = async (userInput) => {
+  try {
+    if (userInput === "y") {
+      // Create the app-example directory
+      await fs.promises.mkdir(exampleDirPath, { recursive: true });
+      console.log(`📁 /${exampleDir} directory created.`);
+    }
+
+    // Move old directories to new app-example directory or delete them
+    for (const dir of oldDirs) {
+      const oldDirPath = path.join(root, dir);
+      if (fs.existsSync(oldDirPath)) {
+        if (userInput === "y") {
+          const newDirPath = path.join(root, exampleDir, dir);
+          await fs.promises.rename(oldDirPath, newDirPath);
+          console.log(`➡️ /${dir} moved to /${exampleDir}/${dir}.`);
+        } else {
+          await fs.promises.rm(oldDirPath, { recursive: true, force: true });
+          console.log(`❌ /${dir} deleted.`);
+        }
+      } else {
+        console.log(`➡️ /${dir} does not exist, skipping.`);
+      }
+    }
+
+    // Create new /app directory
+    const newAppDirPath = path.join(root, newAppDir);
+    await fs.promises.mkdir(newAppDirPath, { recursive: true });
+    console.log("\n📁 New /app directory created.");
+
+    // Create index.tsx
+    const indexPath = path.join(newAppDirPath, "index.tsx");
+    await fs.promises.writeFile(indexPath, indexContent);
+    console.log("📄 app/index.tsx created.");
+
+    // Create _layout.tsx
+    const layoutPath = path.join(newAppDirPath, "_layout.tsx");
+    await fs.promises.writeFile(layoutPath, layoutContent);
+    console.log("📄 app/_layout.tsx created.");
+
+    console.log("\n✅ Project reset complete. Next steps:");
+    console.log(
+      `1. Run \`npx expo start\` to start a development server.\n2. Edit app/index.tsx to edit the main screen.${
+        userInput === "y"
+          ? `\n3. Delete the /${exampleDir} directory when you're done referencing it.`
+          : ""
+      }`
+    );
+  } catch (error) {
+    console.error(`❌ Error during script execution: ${error.message}`);
+  }
+};
+
+rl.question(
+  "Do you want to move existing files to /app-example instead of deleting them? (Y/n): ",
+  (answer) => {
+    const userInput = answer.trim().toLowerCase() || "y";
+    if (userInput === "y" || userInput === "n") {
+      moveDirectories(userInput).finally(() => rl.close());
+    } else {
+      console.log("❌ Invalid input. Please enter 'Y' or 'N'.");
+      rl.close();
+    }
+  }
+);
+
+================
+File: services/api.ts
+================
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert, Platform } from 'react-native';
+import { config } from '../config';
+
+// You may need to change this to match your API endpoint
+// For iOS simulator/device, use your computer's IP address instead of localhost
+// For example: const API_BASE_URL = 'http://192.168.1.100:8000';
+// For Android emulator, you can use http://10.0.2.2:8000
+// For web, you can use relative URLs
+// Use the API base URL from config
+const API_BASE_URL = config.API_BASE_URL;
+
+
+
+
+
+
+
+
+// Log the API URL for debugging
+console.log('API URL:', API_BASE_URL);
+
+export class ApiError extends Error {
+  status: number;
+  data: any;
+
+  constructor(status: number, message: string, data: any) {
+    super(message);
+    this.status = status;
+    this.data = data;
+    this.name = 'ApiError';
+  }
+}
+
+/**
+ * Base API service for making authenticated requests to the backend
+ */
+export const api = {
+  /**
+   * Get the JWT token from AsyncStorage
+   */
+  async getToken(): Promise<string | null> {
+    return await AsyncStorage.getItem('auth_token');
+  },
+
+  /**
+   * Set the JWT token in AsyncStorage
+   */
+  async setToken(token: string): Promise<void> {
+    await AsyncStorage.setItem('auth_token', token);
+  },
+
+  /**
+   * Remove the JWT token from AsyncStorage
+   */
+  async removeToken(): Promise<void> {
+    await AsyncStorage.removeItem('auth_token');
+  },
+
+  /**
+   * Make a request to the API with authentication
+   */
+  async fetch<T = any>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T> {
+
+
+    const token = await this.getToken();
+    
+    const url = `${API_BASE_URL}${endpoint}`;
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...(options.headers as Record<string, string> || {}),
+    };
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const config: RequestInit = {
+      ...options,
+      headers,
+    };
+
+    try {
+      const response = await fetch(url, config);
+      
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new ApiError(
+          response.status,
+          data.error || 'An error occurred',
+          data
+        );
+      }
+
+      return data as T;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        // Handle authentication errors
+        if (error.status === 401) {
+          // Token expired or invalid
+          await this.removeToken();
+          // You could redirect to login here
+        }
+        throw error;
+      }
+      
+      // Network or other errors
+      console.error('API request failed:', error);
+      throw new Error('Network request failed. Please check your connection.');
+    }
+  },
+
+  /**
+   * GET request
+   */
+  get<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    return this.fetch<T>(endpoint, { ...options, method: 'GET' });
+  },
+
+  /**
+   * POST request
+   */
+  post<T = any>(endpoint: string, data: any, options: RequestInit = {}): Promise<T> {
+    return this.fetch<T>(endpoint, {
+      ...options,
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  /**
+   * PUT request
+   */
+  put<T = any>(endpoint: string, data: any, options: RequestInit = {}): Promise<T> {
+    return this.fetch<T>(endpoint, {
+      ...options,
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  /**
+   * DELETE request
+   */
+  delete<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    return this.fetch<T>(endpoint, { ...options, method: 'DELETE' });
+  },
+};
+
+================
+File: services/auth.service.ts
+================
+import { api } from './api';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export interface LoginData {
+  email: string;
+  password: string;
+}
+
+export interface RegisterData {
+  name: string;
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  id: string;
+  name: string;
+  email: string;
+  token: string;
+}
+
+export interface UpdateProfileData {
+  name?: string;
+  email?: string;
+  current_password?: string;
+  new_password?: string;
+}
+
+/**
+ * Authentication service for user management
+ */
+export const authService = {
+  /**
+   * Register a new user
+   */
+  async register(data: RegisterData): Promise<AuthResponse> {
+    const response = await api.post<AuthResponse>('/api/v1/auth/register', data);
+    await api.setToken(response.token);
+    return response;
+  },
+
+  /**
+   * Login a user
+   */
+  async login(data: LoginData): Promise<AuthResponse> {
+    const response = await api.post<AuthResponse>('/api/v1/auth/login', data);
+    await api.setToken(response.token);
+    return response;
+  },
+
+  /**
+   * Logout the current user
+   */
+  async logout(): Promise<void> {
+    await api.removeToken();
+  },
+
+  /**
+   * Get the current user profile
+   */
+  async getCurrentUser(): Promise<User> {
+    return await api.get<User>('/api/v1/auth/me');
+  },
+
+  /**
+   * Update the current user profile
+   */
+  async updateProfile(data: UpdateProfileData): Promise<User> {
+    return await api.put<User>('/api/v1/auth/me', data);
+  },
+
+  /**
+   * Check if the user is authenticated
+   */
+  async isAuthenticated(): Promise<boolean> {
+    const token = await api.getToken();
+    return !!token;
+  },
+};
+
+================
+File: services/exercise.service.ts
+================
+import { api } from './api';
+
+export interface Exercise {
+  id: string;
+  name: string;
+  target_muscle_group: string;
+  primary_equipment: string;
+  difficulty_level: string;
+  youtube_demonstration?: string;
+  in_depth_youtube_explanation?: string;
+  secondary_muscle?: string;
+  tertiary_muscle?: string;
+  primary_items_count?: number;
+  secondary_equipment?: string;
+  secondary_items_count?: number;
+  posture?: string;
+  [key: string]: any;
+}
+
+export interface ExerciseFilterParams {
+  target_muscle_group?: string;
+  difficulty_level?: string;
+  equipment?: string;
+  [key: string]: any;
+}
+
+/**
+ * Exercise service for fetching exercise data
+ */
+export const exerciseService = {
+  /**
+   * Get all exercises with optional filtering
+   */
+  async getExercises(filters?: ExerciseFilterParams): Promise<Exercise[]> {
+    let endpoint = '/api/v1/exercises';
+    
+    // Add query parameters if filters exist
+    if (filters && Object.keys(filters).length > 0) {
+      const params = new URLSearchParams();
+      for (const [key, value] of Object.entries(filters)) {
+        if (value) {
+          params.append(key, value);
+        }
+      }
+      endpoint += `?${params.toString()}`;
+    }
+    
+    return await api.get<Exercise[]>(endpoint);
+  },
+
+  /**
+   * Get a specific exercise by ID
+   */
+  async getExercise(id: string): Promise<Exercise> {
+    return await api.get<Exercise>(`/api/v1/exercises/${id}`);
+  },
+};
+
+================
+File: services/progress.service.ts
+================
+import { api } from './api';
+
+export interface ExerciseProgressStats {
+  max_weight: number;
+  max_reps: number;
+  volume_over_time: ExerciseVolumePoint[];
+  personal_records: ExerciseMaxPoint[];
+}
+
+export interface ExerciseVolumePoint {
+  date: string;
+  volume: number;
+}
+
+export interface ExerciseMaxPoint {
+  date: string;
+  weight: number;
+  reps: number;
+}
+
+export interface MuscleGroupStats {
+  muscle_groups: MuscleGroupActivity[];
+}
+
+export interface MuscleGroupActivity {
+  name: string;
+  volume: number;
+  sets_count: number;
+  activity_level: number; // 0-100 percentage
+}
+
+export interface WorkoutOverview {
+  workout_count: number;
+  total_duration: number;
+  total_volume: number;
+  most_trained_muscle: string;
+  avg_workout_duration: number;
+  avg_rest_time: number;
+  personal_records_count: number;
+}
+
+export interface WorkoutTrends {
+  data_points: TrendPoint[];
+}
+
+export interface TrendPoint {
+  date: string;
+  value: number;
+}
+
+export interface PersonalRecordsResponse {
+  records: PersonalRecord[];
+}
+
+export interface PersonalRecord {
+  exercise_id: string;
+  exercise_name: string;
+  weight: number;
+  reps: number;
+  date: string;
+}
+
+/**
+ * Progress service for fetching statistics and progress data
+ */
+export const progressService = {
+  /**
+   * Get exercise progress stats
+   */
+  async getExerciseStats(
+    exerciseId: string,
+    params?: { start_date?: string; end_date?: string }
+  ): Promise<ExerciseProgressStats> {
+    const queryParams = new URLSearchParams();
+    if (params?.start_date) queryParams.append('start_date', params.start_date);
+    if (params?.end_date) queryParams.append('end_date', params.end_date);
+    
+    const queryString = queryParams.toString();
+    const endpoint = queryString 
+      ? `/api/v1/stats/exercise/${exerciseId}?${queryString}`
+      : `/api/v1/stats/exercise/${exerciseId}`;
+      
+    return await api.get<ExerciseProgressStats>(endpoint);
+  },
+
+  /**
+   * Get muscle group activity data for heatmap
+   */
+  async getMuscleGroupStats(
+    params?: { start_date?: string; end_date?: string }
+  ): Promise<MuscleGroupStats> {
+    const queryParams = new URLSearchParams();
+    if (params?.start_date) queryParams.append('start_date', params.start_date);
+    if (params?.end_date) queryParams.append('end_date', params.end_date);
+    
+    const queryString = queryParams.toString();
+    const endpoint = queryString 
+      ? `/api/v1/stats/muscle-groups?${queryString}`
+      : '/api/v1/stats/muscle-groups';
+      
+    return await api.get<MuscleGroupStats>(endpoint);
+  },
+
+  /**
+   * Get personal records
+   */
+  async getPersonalRecords(): Promise<PersonalRecordsResponse> {
+    return await api.get<PersonalRecordsResponse>('/api/v1/stats/personal-records');
+  },
+
+  /**
+   * Get workout overview stats
+   */
+  async getWorkoutOverview(
+    params?: { start_date?: string; end_date?: string }
+  ): Promise<WorkoutOverview> {
+    const queryParams = new URLSearchParams();
+    if (params?.start_date) queryParams.append('start_date', params.start_date);
+    if (params?.end_date) queryParams.append('end_date', params.end_date);
+    
+    const queryString = queryParams.toString();
+    const endpoint = queryString 
+      ? `/api/v1/stats/overview?${queryString}`
+      : '/api/v1/stats/overview';
+      
+    return await api.get<WorkoutOverview>(endpoint);
+  },
+
+  /**
+   * Get workout trends over time
+   */
+  async getWorkoutTrends(
+    params: {
+      start_date?: string;
+      end_date?: string;
+      metric: 'volume' | 'duration' | 'frequency';
+    }
+  ): Promise<WorkoutTrends> {
+    const queryParams = new URLSearchParams();
+    if (params?.start_date) queryParams.append('start_date', params.start_date);
+    if (params?.end_date) queryParams.append('end_date', params.end_date);
+    if (params?.metric) queryParams.append('metric', params.metric);
+    
+    const endpoint = `/api/v1/stats/trends?${queryParams.toString()}`;
+    return await api.get<WorkoutTrends>(endpoint);
+  },
+};
+
+================
+File: services/template.service.ts
+================
+import { api } from './api';
+
+export interface Exercise {
+  id: string;
+  name: string;
+  target_muscle_group: string;
+  primary_equipment: string;
+  difficulty_level: string;
+  [key: string]: any;
+}
+
+export interface TemplateSet {
+  id?: string;
+  set_number: number;
+  target_reps: number;
+  target_weight: number;
+  is_warmup: boolean;
+  target_rest_time: number;
+  tempo?: string;
+}
+
+export interface TemplateExercise {
+  id?: string;
+  exercise_id: string;
+  exercise?: Exercise;
+  order: number;
+  notes?: string;
+  superset_group_id?: string;
+  superset_order?: number;
+  sets: TemplateSet[];
+}
+
+export interface Template {
+  id: string;
+  name: string;
+  description: string;
+  exercise_count?: number;
+  exercises?: TemplateExercise[];
+}
+
+export interface TemplateCreateData {
+  name: string;
+  description: string;
+}
+
+export interface TemplateExerciseCreateData {
+  exercise_id: string;
+  order: number;
+  notes?: string;
+}
+
+export interface TemplateExerciseUpdateData {
+  order?: number;
+  notes?: string;
+  superset_group_id?: string;
+  superset_order?: number;
+}
+
+export interface TemplateSetCreateData {
+  set_number: number;
+  target_reps: number;
+  target_weight: number;
+  is_warmup: boolean;
+  target_rest_time: number;
+  tempo?: string;
+}
+
+export interface SupersetCreateData {
+  exercise_ids: string[];
+  orders: number[];
+}
+
+/**
+ * Template service for managing workout templates
+ */
+export const templateService = {
+  /**
+   * Get all templates
+   */
+  async getTemplates(): Promise<Template[]> {
+    return await api.get<Template[]>('/api/v1/templates');
+  },
+
+  /**
+   * Get a template by ID
+   */
+  async getTemplate(id: string): Promise<Template> {
+    return await api.get<Template>(`/api/v1/templates/${id}`);
+  },
+
+  /**
+   * Create a new template
+   */
+  async createTemplate(data: TemplateCreateData): Promise<Template> {
+    return await api.post<Template>('/api/v1/templates', data);
+  },
+
+  /**
+   * Update a template
+   */
+  async updateTemplate(id: string, data: TemplateCreateData): Promise<Template> {
+    return await api.put<Template>(`/api/v1/templates/${id}`, data);
+  },
+
+  /**
+   * Delete a template
+   */
+  async deleteTemplate(id: string): Promise<{ success: boolean }> {
+    return await api.delete<{ success: boolean }>(`/api/v1/templates/${id}`);
+  },
+
+  /**
+   * Add an exercise to a template
+   */
+  async addExercise(templateId: string, data: TemplateExerciseCreateData): Promise<any> {
+    return await api.post<any>(`/api/v1/templates/${templateId}/exercises`, data);
+  },
+
+  /**
+   * Update an exercise in a template
+   */
+  async updateExercise(
+    templateId: string,
+    exerciseId: string,
+    data: TemplateExerciseUpdateData
+  ): Promise<any> {
+    return await api.put<any>(
+      `/api/v1/templates/${templateId}/exercises/${exerciseId}`,
+      data
+    );
+  },
+
+  /**
+   * Remove an exercise from a template
+   */
+  async removeExercise(
+    templateId: string,
+    exerciseId: string
+  ): Promise<{ success: boolean }> {
+    return await api.delete<{ success: boolean }>(
+      `/api/v1/templates/${templateId}/exercises/${exerciseId}`
+    );
+  },
+
+  /**
+   * Add a set to an exercise in a template
+   */
+  async addSet(
+    templateId: string,
+    exerciseId: string,
+    data: TemplateSetCreateData
+  ): Promise<any> {
+    return await api.post<any>(
+      `/api/v1/templates/${templateId}/exercises/${exerciseId}/sets`,
+      data
+    );
+  },
+
+  /**
+   * Update a set in a template exercise
+   */
+  async updateSet(
+    templateId: string,
+    exerciseId: string,
+    setId: string,
+    data: Partial<TemplateSetCreateData>
+  ): Promise<any> {
+    return await api.put<any>(
+      `/api/v1/templates/${templateId}/exercises/${exerciseId}/sets/${setId}`,
+      data
+    );
+  },
+
+  /**
+   * Remove a set from a template exercise
+   */
+  async removeSet(
+    templateId: string,
+    exerciseId: string,
+    setId: string
+  ): Promise<{ success: boolean }> {
+    return await api.delete<{ success: boolean }>(
+      `/api/v1/templates/${templateId}/exercises/${exerciseId}/sets/${setId}`
+    );
+  },
+
+  /**
+   * Create a superset in a template
+   */
+  async createSuperset(
+    templateId: string,
+    data: SupersetCreateData
+  ): Promise<any> {
+    return await api.post<any>(
+      `/api/v1/templates/${templateId}/supersets`,
+      data
+    );
+  },
+
+  /**
+   * Remove a superset from a template
+   */
+  async removeSuperset(
+    templateId: string,
+    supersetId: string
+  ): Promise<{ success: boolean }> {
+    return await api.delete<{ success: boolean }>(
+      `/api/v1/templates/${templateId}/supersets/${supersetId}`
+    );
+  },
+};
+
+================
+File: services/workout.service.ts
+================
+import { api } from './api';
+import { Exercise } from './template.service';
+
+export interface WorkoutSession {
+  id: string;
+  name: string;
+  started_at: string;
+  completed_at?: string;
+  duration?: number;
+  exercises?: WorkoutExercise[];
+}
+
+export interface WorkoutExercise {
+    id: string;
+    exercise_id: string;
+    exercise?: Exercise; // Add the exercise relationship
+    order: number;
+    started_at?: string;
+    completed_at?: string;
+    duration?: number;
+    sets?: WorkoutSet[];
+  }
+
+export interface WorkoutSet {
+  id: string;
+  set_number: number;
+  reps_completed: number;
+  weight: number;
+  is_warmup: boolean;
+  rpe?: number;
+  notes?: string;
+  started_at?: string;
+  completed_at?: string;
+  rest_start_time?: string;
+  rest_end_time?: string;
+  actual_rest_time?: number;
+}
+
+export interface WorkoutSessionCreateData {
+  name: string;
+  template_ids?: string[];
+}
+
+export interface WorkoutSessionUpdateData {
+  name?: string;
+  notes?: string;
+}
+
+export interface WorkoutExerciseCreateData {
+  exercise_id: string;
+  order: number;
+}
+
+export interface WorkoutSetCreateData {
+  set_number: number;
+  reps_completed: number;
+  weight: number;
+  is_warmup: boolean;
+  rpe?: number;
+  notes?: string;
+}
+
+export interface WorkoutSetUpdateData {
+  reps_completed?: number;
+  weight?: number;
+  is_warmup?: boolean;
+  rpe?: number;
+  notes?: string;
+}
+
+/**
+ * Workout service for managing workout sessions
+ */
+export const workoutService = {
+  /**
+   * Get all workout sessions with optional filtering
+   */
+  async getWorkoutSessions(params?: {
+    start_date?: string;
+    end_date?: string;
+    template_id?: string;
+  }): Promise<WorkoutSession[]> {
+    // Build query string from params
+    const queryParams = new URLSearchParams();
+    if (params?.start_date) queryParams.append('start_date', params.start_date);
+    if (params?.end_date) queryParams.append('end_date', params.end_date);
+    if (params?.template_id) queryParams.append('template_id', params.template_id);
+    
+    const queryString = queryParams.toString();
+    const endpoint = queryString 
+      ? `/api/v1/sessions?${queryString}`
+      : '/api/v1/sessions';
+      
+    return await api.get<WorkoutSession[]>(endpoint);
+  },
+
+  /**
+   * Get a workout session by ID
+   */
+  async getWorkoutSession(id: string): Promise<WorkoutSession> {
+    return await api.get<WorkoutSession>(`/api/v1/sessions/${id}`);
+  },
+
+  /**
+   * Start a new workout session
+   */
+  async startWorkout(data: WorkoutSessionCreateData): Promise<WorkoutSession> {
+    return await api.post<WorkoutSession>('/api/v1/sessions', data);
+  },
+
+  /**
+   * Update a workout session
+   */
+  async updateWorkout(id: string, data: WorkoutSessionUpdateData): Promise<WorkoutSession> {
+    return await api.put<WorkoutSession>(`/api/v1/sessions/${id}`, data);
+  },
+
+  /**
+   * Complete a workout session
+   */
+  async completeWorkout(id: string, completed_at?: string): Promise<WorkoutSession> {
+    return await api.post<WorkoutSession>(`/api/v1/sessions/${id}/complete`, { completed_at });
+  },
+
+  /**
+   * Add an exercise to an active workout session
+   */
+  async addExercise(sessionId: string, data: WorkoutExerciseCreateData): Promise<any> {
+    return await api.post<any>(`/api/v1/sessions/${sessionId}/exercises`, data);
+  },
+
+  /**
+   * Start an exercise in a workout session
+   */
+  async startExercise(sessionId: string, exerciseId: string): Promise<any> {
+    return await api.post<any>(`/api/v1/sessions/${sessionId}/exercises/${exerciseId}/start`, {});
+  },
+
+  /**
+   * Complete an exercise in a workout session
+   */
+  async completeExercise(sessionId: string, exerciseId: string): Promise<any> {
+    return await api.post<any>(
+      `/api/v1/sessions/${sessionId}/exercises/${exerciseId}/complete`,
+      {}
+    );
+  },
+
+  /**
+   * Log a completed set for an exercise
+   */
+  async logSet(
+    sessionId: string,
+    exerciseId: string,
+    data: WorkoutSetCreateData
+  ): Promise<WorkoutSet> {
+    return await api.post<WorkoutSet>(
+      `/api/v1/sessions/${sessionId}/exercises/${exerciseId}/sets`,
+      data
+    );
+  },
+
+  /**
+   * Update a logged set
+   */
+  async updateSet(
+    sessionId: string,
+    exerciseId: string,
+    setId: string,
+    data: WorkoutSetUpdateData
+  ): Promise<WorkoutSet> {
+    return await api.put<WorkoutSet>(
+      `/api/v1/sessions/${sessionId}/exercises/${exerciseId}/sets/${setId}`,
+      data
+    );
+  },
+
+  /**
+   * Start rest timer after a set
+   */
+  async startRestTimer(
+    sessionId: string,
+    exerciseId: string,
+    setId: string
+  ): Promise<any> {
+    return await api.post<any>(
+      `/api/v1/sessions/${sessionId}/exercises/${exerciseId}/sets/${setId}/rest`,
+      {}
+    );
+  },
+
+  /**
+   * End rest timer
+   */
+  async endRestTimer(
+    sessionId: string,
+    exerciseId: string,
+    setId: string
+  ): Promise<any> {
+    return await api.put<any>(
+      `/api/v1/sessions/${sessionId}/exercises/${exerciseId}/sets/${setId}/rest`,
+      {}
+    );
+  },
+
+  /**
+   * Create a superset in an active workout session
+   */
+  async createSuperset(
+    sessionId: string,
+    data: { exercise_ids: string[]; orders: number[] }
+  ): Promise<any> {
+    return await api.post<any>(`/api/v1/sessions/${sessionId}/supersets`, data);
+  },
+};
+
+================
+File: .gitignore
+================
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+app-example
+
+.env
+
+config.ts
+
+================
+File: app.json
+================
+{
+  "expo": {
+    "name": "frontend",
+    "slug": "frontend",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "myapp",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
+
+================
+File: package.json
+================
+{
+  "name": "frontend",
+  "main": "expo-router/entry",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "expo start",
+    "reset-project": "node ./scripts/reset-project.js",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "test": "jest --watchAll",
+    "lint": "expo lint"
+  },
+  "jest": {
+    "preset": "jest-expo"
+  },
+  "dependencies": {
+    "@expo/vector-icons": "^14.0.2",
+    "@react-native-async-storage/async-storage": "1.23.1",
+    "@react-navigation/bottom-tabs": "^7.2.0",
+    "@react-navigation/native": "^7.0.14",
+    "async-storage": "^0.1.0",
+    "expo": "~52.0.37",
+    "expo-blur": "~14.0.3",
+    "expo-constants": "~17.0.7",
+    "expo-font": "~13.0.4",
+    "expo-haptics": "~14.0.1",
+    "expo-linking": "~7.0.5",
+    "expo-router": "~4.0.17",
+    "expo-splash-screen": "~0.29.22",
+    "expo-status-bar": "~2.0.1",
+    "expo-symbols": "~0.2.2",
+    "expo-system-ui": "~4.0.8",
+    "expo-web-browser": "~14.0.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-native": "0.76.7",
+    "react-native-chart-kit": "^6.12.0",
+    "react-native-gesture-handler": "~2.20.2",
+    "react-native-reanimated": "~3.16.1",
+    "react-native-safe-area-context": "4.12.0",
+    "react-native-screens": "~4.4.0",
+    "react-native-svg": "15.8.0",
+    "react-native-web": "~0.19.13",
+    "react-native-webview": "13.12.5"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@types/jest": "^29.5.12",
+    "@types/react": "~18.3.12",
+    "@types/react-test-renderer": "^18.3.0",
+    "jest": "^29.2.1",
+    "jest-expo": "~52.0.4",
+    "react-test-renderer": "18.3.1",
+    "typescript": "^5.3.3"
+  },
+  "private": true
+}
+
+================
+File: README.md
+================
+# Welcome to your Expo app 👋
+
+This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+
+## Get started
+
+1. Install dependencies
+
+   ```bash
+   npm install
+   ```
+
+2. Start the app
+
+   ```bash
+    npx expo start
+   ```
+
+In the output, you'll find options to open the app in a
+
+- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
+- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
+- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+
+You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+
+## Get a fresh project
+
+When you're ready, run:
+
+```bash
+npm run reset-project
+```
+
+This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+
+## Learn more
+
+To learn more about developing your project with Expo, look at the following resources:
+
+- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
+- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+
+## Join the community
+
+Join our community of developers creating universal apps.
+
+- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
+- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+================
+File: tsconfig.json
+================
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ]
+}
+
+
+
+================================================================
+End of Codebase
+================================================================

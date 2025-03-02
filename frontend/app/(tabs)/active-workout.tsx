@@ -15,7 +15,6 @@ import {
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { Colors } from '@/constants/Colors';
 import { useWorkout } from '@/context/WorkoutContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useThemeColor } from '@/hooks/useThemeColor';
@@ -39,6 +38,8 @@ export default function ActiveWorkoutScreen() {
     refreshWorkout,
   } = useWorkout();
   const colorScheme = useColorScheme() ?? 'light';
+  const textColor = useThemeColor({}, 'text');
+  const tintColor = useThemeColor({}, 'tint');
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [isLoadingExercises, setIsLoadingExercises] = useState(false);
@@ -55,10 +56,10 @@ export default function ActiveWorkoutScreen() {
       router.replace('/');
       return;
     }
-
+  
     // Refresh workout data
     refreshWorkout();
-  }, [activeWorkout]);
+  }, [activeWorkout, refreshWorkout]);
 
   useEffect(() => {
     // Reset form fields when changing exercises
@@ -176,7 +177,7 @@ export default function ActiveWorkoutScreen() {
     } else {
       exitAnimatedValue.setValue(0);
     }
-  }, [isRestTimerActive, restTimeRemaining]);
+  }, [isRestTimerActive, restTimeRemaining, exitAnimatedValue]);
 
   const progressWidth = exitAnimatedValue.interpolate({
     inputRange: [0, 100],
@@ -234,7 +235,7 @@ export default function ActiveWorkoutScreen() {
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => setShowExerciseSelector(false)}>
-            <IconSymbol name="arrow.left" size={24} color={useThemeColor({}, 'text')} />
+            <IconSymbol name="arrow.left" size={24} color={textColor} />
           </TouchableOpacity>
           <ThemedText type="title">Select Exercise</ThemedText>
         </ThemedView>
@@ -257,7 +258,7 @@ export default function ActiveWorkoutScreen() {
                     {item.target_muscle_group} • {item.primary_equipment}
                   </ThemedText>
                 </ThemedView>
-                <IconSymbol name="plus.circle.fill" size={20} color={useThemeColor({}, 'tint')} />
+                <IconSymbol name="plus.circle.fill" size={20} color={tintColor} />
               </TouchableOpacity>
             )}
           />
@@ -274,7 +275,7 @@ export default function ActiveWorkoutScreen() {
         <TouchableOpacity
           style={styles.addExerciseIcon}
           onPress={handleAddExercise}>
-          <IconSymbol name="plus.circle.fill" size={28} color={useThemeColor({}, 'tint')} />
+          <IconSymbol name="plus.circle.fill" size={28} color={tintColor} />
         </TouchableOpacity>
       </ThemedView>
 
@@ -288,7 +289,7 @@ export default function ActiveWorkoutScreen() {
           <TouchableOpacity
             style={[
               styles.exerciseTab,
-              currentExerciseIndex === index && { backgroundColor: useThemeColor({}, 'tint') },
+              currentExerciseIndex === index && { backgroundColor: tintColor },
             ]}
             onPress={() => navigateToExercise(index)}>
             <ThemedText
@@ -459,7 +460,7 @@ export default function ActiveWorkoutScreen() {
         animationType="fade">
         <ThemedView style={styles.restTimerContainer}>
           <ThemedView style={styles.restTimerContent}>
-            <IconSymbol name="timer" size={40} color={useThemeColor({}, 'tint')} />
+          <IconSymbol name="timer" size={40} color={tintColor} />
             <ThemedText style={styles.restTimerTitle}>Rest Time</ThemedText>
             <ThemedText style={styles.restTimerTime}>{formatTime(restTimeRemaining)}</ThemedText>
             
@@ -467,7 +468,7 @@ export default function ActiveWorkoutScreen() {
               <Animated.View 
                 style={[
                   styles.restTimerProgress, 
-                  { width: progressWidth, backgroundColor: useThemeColor({}, 'tint') }
+                  { width: progressWidth, backgroundColor: tintColor }
                 ]} 
               />
             </ThemedView>
@@ -860,3 +861,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+

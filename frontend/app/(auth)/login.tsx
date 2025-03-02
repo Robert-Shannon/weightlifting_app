@@ -24,6 +24,7 @@ export default function LoginScreen() {
       await login({ email, password });
     } catch (error) {
       // Error is handled in the auth context
+      console.error('Login error:', error);
     }
   };
 

@@ -31,6 +31,7 @@ export default function RegisterScreen() {
       await register({ name, email, password });
     } catch (error) {
       // Error is handled in the auth context
+      console.error('Register error:', error);
     }
   };
 

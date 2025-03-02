@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: response.email,
       });
       setIsAuthenticated(true);
-      router.replace('/');
+      router.replace('/(tabs)');
     } catch (error) {
       console.error('Login failed:', error);
       Alert.alert('Login Failed', 'Please check your credentials and try again.');
@@ -76,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: response.email,
       });
       setIsAuthenticated(true);
-      router.replace('/');
+      router.replace('/(tabs)');
     } catch (error) {
       console.error('Registration failed:', error);
       Alert.alert('Registration Failed', 'Please check your information and try again.');

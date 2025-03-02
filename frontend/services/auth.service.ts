@@ -39,7 +39,7 @@ export const authService = {
    * Register a new user
    */
   async register(data: RegisterData): Promise<AuthResponse> {
-    const response = await api.post<AuthResponse>('/api/v1/auth/register', data);
+    const response = await api.post<AuthResponse>('/api/v1/users/register', data);
     await api.setToken(response.token);
     return response;
   },
@@ -48,7 +48,7 @@ export const authService = {
    * Login a user
    */
   async login(data: LoginData): Promise<AuthResponse> {
-    const response = await api.post<AuthResponse>('/api/v1/auth/login', data);
+    const response = await api.post<AuthResponse>('/api/v1/users/login', data);
     await api.setToken(response.token);
     return response;
   },
@@ -64,14 +64,14 @@ export const authService = {
    * Get the current user profile
    */
   async getCurrentUser(): Promise<User> {
-    return await api.get<User>('/api/v1/auth/me');
+    return await api.get<User>('/api/v1/users/me');
   },
 
   /**
    * Update the current user profile
    */
   async updateProfile(data: UpdateProfileData): Promise<User> {
-    return await api.put<User>('/api/v1/auth/me', data);
+    return await api.put<User>('/api/v1/users/me', data);
   },
 
   /**

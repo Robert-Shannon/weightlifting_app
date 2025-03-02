@@ -1,4 +1,4 @@
-import { api } from './api';
+import { api, ApiError } from './api';
 
 export interface User {
   id: string;
@@ -39,18 +39,39 @@ export const authService = {
    * Register a new user
    */
   async register(data: RegisterData): Promise<AuthResponse> {
-    const response = await api.post<AuthResponse>('/api/v1/users/register', data);
-    await api.setToken(response.token);
-    return response;
+    try {
+      const response = await api.post<AuthResponse>('/api/v1/users/register', data);
+      await api.setToken(response.token);
+      return response;
+    } catch (error) {
+      // If it's an API error with validation details, pass along the message
+      if (error instanceof ApiError) {
+        throw new Error(error.message);
+      }
+      // Otherwise handle as a generic error
+      console.error('Registration failed:', error);
+      throw new Error('Registration failed. Please try again.');
+    }
   },
 
   /**
    * Login a user
    */
   async login(data: LoginData): Promise<AuthResponse> {
-    const response = await api.post<AuthResponse>('/api/v1/users/login', data);
-    await api.setToken(response.token);
-    return response;
+    try {
+      const response = await api.post<AuthResponse>('/api/v1/users/login', data);
+      await api.setToken(response.token);
+      return response;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        if (error.status === 401) {
+          throw new Error('Invalid email or password.');
+        }
+        throw new Error(error.message);
+      }
+      console.error('Login failed:', error);
+      throw new Error('Login failed. Please try again.');
+    }
   },
 
   /**
@@ -64,14 +85,27 @@ export const authService = {
    * Get the current user profile
    */
   async getCurrentUser(): Promise<User> {
-    return await api.get<User>('/api/v1/users/me');
+    try {
+      return await api.get<User>('/api/v1/users/me');
+    } catch (error) {
+      console.error('Failed to get user profile:', error);
+      throw error;
+    }
   },
 
   /**
    * Update the current user profile
    */
   async updateProfile(data: UpdateProfileData): Promise<User> {
-    return await api.put<User>('/api/v1/users/me', data);
+    try {
+      return await api.put<User>('/api/v1/users/me', data);
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw new Error(error.message);
+      }
+      console.error('Profile update failed:', error);
+      throw new Error('Failed to update profile. Please try again.');
+    }
   },
 
   /**

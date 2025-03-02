@@ -1,6 +1,6 @@
 import { Link } from 'expo-router';
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 
 import { useAuth } from '@/context/AuthContext';
 import { ThemedText } from '@/components/ThemedText';
@@ -13,25 +13,40 @@ export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const { register, isLoading } = useAuth();
   const colorScheme = useColorScheme() ?? 'light';
 
   const handleRegister = async () => {
+    // Clear previous errors
+    setError(null);
+
+    // Basic validation
     if (!name || !email || !password || !confirmPassword) {
-      alert('Please fill in all fields');
+      setError('Please fill in all fields');
       return;
     }
 
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long');
       return;
     }
 
     try {
       await register({ name, email, password });
+      // Success is handled in the auth context (redirecting to home)
     } catch (error) {
-      // Error is handled in the auth context
-      console.error('Register error:', error);
+      // Display the error message from the API
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
     }
   };
 
@@ -46,6 +61,12 @@ export default function RegisterScreen() {
         </ThemedView>
         
         <ThemedView style={styles.formContainer}>
+          {error && (
+            <ThemedView style={styles.errorContainer}>
+              <ThemedText style={styles.errorText}>{error}</ThemedText>
+            </ThemedView>
+          )}
+          
           <TextInput
             style={[
               styles.input,
@@ -84,7 +105,7 @@ export default function RegisterScreen() {
                 color: colorScheme === 'dark' ? '#fff' : '#000'
               }
             ]}
-            placeholder="Password"
+            placeholder="Password (min. 8 characters)"
             placeholderTextColor={colorScheme === 'dark' ? '#aaa' : '#777'}
             secureTextEntry
             value={password}
@@ -110,9 +131,11 @@ export default function RegisterScreen() {
             style={[styles.button, { opacity: isLoading ? 0.7 : 1 }]}
             onPress={handleRegister}
             disabled={isLoading}>
-            <ThemedText style={styles.buttonText}>
-              {isLoading ? 'Creating Account...' : 'Register'}
-            </ThemedText>
+            {isLoading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <ThemedText style={styles.buttonText}>Register</ThemedText>
+            )}
           </TouchableOpacity>
           
           <ThemedView style={styles.loginContainer}>
@@ -145,6 +168,16 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     width: '100%',
+  },
+  errorContainer: {
+    backgroundColor: 'rgba(255, 0, 0, 0.1)',
+    padding: 12,
+    borderRadius: 5,
+    marginBottom: 15,
+  },
+  errorText: {
+    color: '#d32f2f',
+    textAlign: 'center',
   },
   input: {
     width: '100%',

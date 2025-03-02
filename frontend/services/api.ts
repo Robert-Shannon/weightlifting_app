@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Alert, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import { config } from '../config';
 
 // You may need to change this to match your API endpoint
@@ -9,8 +9,6 @@ import { config } from '../config';
 // For web, you can use relative URLs
 // Use the API base URL from config
 const API_BASE_URL = config.API_BASE_URL;
-
-
 
 // Log the API URL for debugging
 console.log('API URL:', API_BASE_URL);
@@ -53,14 +51,28 @@ export const api = {
   },
 
   /**
+   * Format validation errors from FastAPI for display
+   */
+  formatValidationErrors(details: any[]): string {
+    if (!details || !Array.isArray(details)) {
+      return 'Invalid request data';
+    }
+    
+    return details.map(error => {
+      // FastAPI validation errors have 'loc' as an array where the first item is 'body'
+      // and the rest are the nested field names
+      const field = error.loc.slice(1).join('.');
+      return `${field}: ${error.msg}`;
+    }).join('\n');
+  },
+
+  /**
    * Make a request to the API with authentication
    */
   async fetch<T = any>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
-
-
     const token = await this.getToken();
     
     const url = `${API_BASE_URL}${endpoint}`;
@@ -81,9 +93,18 @@ export const api = {
     try {
       const response = await fetch(url, config);
       
-      const data = await response.json();
-
       if (!response.ok) {
+        const data = await response.json();
+
+        // For validation errors (422), format the error details
+        if (response.status === 422 && data.detail) {
+          throw new ApiError(
+            response.status,
+            this.formatValidationErrors(data.detail),
+            data
+          );
+        }
+
         throw new ApiError(
           response.status,
           data.error || 'An error occurred',
@@ -91,7 +112,7 @@ export const api = {
         );
       }
 
-      return data as T;
+      return await response.json() as T;
     } catch (error) {
       if (error instanceof ApiError) {
         // Handle authentication errors

@@ -176,7 +176,7 @@ export default function TemplateDetailScreen() {
         template_ids: [template.id],
       });
       
-      router.push('/active-workout');
+      router.push('/workout/active');
     } catch (error) {
       console.error('Failed to start workout:', error);
       Alert.alert('Error', 'Failed to start workout');

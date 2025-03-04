@@ -29,8 +29,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsAuthenticated(isAuth);
         
         if (isAuth) {
-          const userData = await authService.getCurrentUser();
-          setUser(userData);
+          try {
+            const userData = await authService.getCurrentUser();
+            setUser(userData);
+          } catch (userError) {
+            console.error('Failed to get user data:', userError);
+            // If we can't get user data but have a token, clear auth state
+            await authService.logout();
+            setIsAuthenticated(false);
+            setUser(null);
+          }
         }
       } catch (error) {
         console.error('Auth check failed:', error);

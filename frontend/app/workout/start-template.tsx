@@ -17,7 +17,7 @@ import { useWorkout } from '@/context/WorkoutContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Template, templateService } from '@/services/template.service';
 
-export default function StartWorkoutScreen() {
+export default function StartWorkoutFromTemplateScreen() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [selectedTemplates, setSelectedTemplates] = useState<string[]>([]);
   const [workoutName, setWorkoutName] = useState('');
@@ -72,22 +72,15 @@ export default function StartWorkoutScreen() {
     }
   };
 
-  const handleEmptyWorkout = async () => {
-    try {
-      await startWorkout({
-        name: workoutName,
-      });
-      // Navigation is handled in the workout context
-    } catch (error) {
-      console.error('Failed to start empty workout:', error);
-      Alert.alert('Error', 'Failed to start workout. Please try again.');
-    }
-  };
-
   return (
     <ThemedView style={styles.container}>
       <ThemedView style={styles.header}>
-        <ThemedText type="title">Start a Workout</ThemedText>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}>
+          <IconSymbol name="arrow.left" size={24} color={Colors[colorScheme].text} />
+        </TouchableOpacity>
+        <ThemedText type="title">Start from Template</ThemedText>
       </ThemedView>
 
       <ThemedView style={styles.nameContainer}>
@@ -145,29 +138,19 @@ export default function StartWorkoutScreen() {
         )}
       </ThemedView>
 
-      <ThemedView style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.emptyWorkoutButton}
-          onPress={handleEmptyWorkout}>
-          <ThemedText style={styles.emptyWorkoutButtonText}>
-            Start Empty Workout
-          </ThemedText>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.startButton,
-            {
-              opacity: selectedTemplates.length === 0 ? 0.6 : 1,
-            },
-          ]}
-          onPress={handleStartWorkout}
-          disabled={selectedTemplates.length === 0}>
-          <ThemedText style={styles.startButtonText}>
-            Start Workout
-          </ThemedText>
-        </TouchableOpacity>
-      </ThemedView>
+      <TouchableOpacity
+        style={[
+          styles.startButton,
+          {
+            opacity: selectedTemplates.length === 0 ? 0.6 : 1,
+          },
+        ]}
+        onPress={handleStartWorkout}
+        disabled={selectedTemplates.length === 0}>
+        <ThemedText style={styles.startButtonText}>
+          Start Workout
+        </ThemedText>
+      </TouchableOpacity>
     </ThemedView>
   );
 }
@@ -225,7 +208,12 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 24,
+  },
+  backButton: {
+    marginRight: 16,
   },
   nameContainer: {
     marginBottom: 24,
@@ -315,24 +303,12 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
-  buttonContainer: {
-    marginTop: 20,
-    gap: 12,
-  },
-  emptyWorkoutButton: {
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  emptyWorkoutButtonText: {
-    fontWeight: 'bold',
-  },
   startButton: {
     backgroundColor: Colors.light.tint,
     paddingVertical: 16,
     borderRadius: 8,
     alignItems: 'center',
+    marginTop: 16,
   },
   startButtonText: {
     color: 'white',

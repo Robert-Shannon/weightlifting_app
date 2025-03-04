@@ -5,51 +5,34 @@ import {
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
+  ScrollView,
+  View,
+  Text,
 } from 'react-native';
+import { useColorScheme } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+import { HeaderWithProfile } from '@/components/HeaderWithProfile';
 import { useAuth } from '@/context/AuthContext';
-import { useWorkout } from '@/context/WorkoutContext';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { useThemeColor } from '@/hooks/useThemeColor';
-import { workoutService, WorkoutSession } from '@/services/workout.service';
 
 export default function HomeScreen() {
   const { user } = useAuth();
-  const { startWorkout } = useWorkout();
-  const colorScheme = useColorScheme() ?? 'light';
-  const tintColor = useThemeColor({}, 'tint');
-  const textColor = useThemeColor({}, 'text');
+  const colorScheme = useColorScheme();
+  const textColor = colorScheme === 'dark' ? '#fff' : '#000';
+  const backgroundColor = colorScheme === 'dark' ? '#121212' : '#f8f8f8';
+  const cardColor = colorScheme === 'dark' ? '#1e1e1e' : '#fff';
   
-  const [recentWorkouts, setRecentWorkouts] = useState<WorkoutSession[]>([]);
-  const [isLoadingWorkouts, setIsLoadingWorkouts] = useState(true);
-
-  useEffect(() => {
-    const fetchRecentWorkouts = async () => {
-      try {
-        setIsLoadingWorkouts(true);
-        const workouts = await workoutService.getWorkoutSessions();
-        // Only get the most recent 5 workouts
-        setRecentWorkouts(workouts.slice(0, 5));
-      } catch (error) {
-        console.error('Failed to fetch recent workouts:', error);
-      } finally {
-        setIsLoadingWorkouts(false);
-      }
-    };
-
-    fetchRecentWorkouts();
-  }, []);
-
-  const handleQuickStart = async () => {
-    try {
-      await startWorkout({ name: `Workout ${new Date().toLocaleDateString()}` });
-    } catch (error) {
-      console.error('Failed to start quick workout:', error);
-    }
-  };
+  // Dummy data for demonstration
+  const recentWorkouts = [
+    { id: '1', name: 'Morning Push Workout', date: '2023-09-15', duration: 65 },
+    { id: '2', name: 'Leg Day', date: '2023-09-13', duration: 75 },
+  ];
+  
+  const templates = [
+    { id: '1', name: 'Push Workout', exercises: 8 },
+    { id: '2', name: 'Pull Workout', exercises: 7 },
+    { id: '3', name: 'Leg Workout', exercises: 6 },
+  ];
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -60,189 +43,188 @@ export default function HomeScreen() {
     });
   };
 
-  const formatDuration = (duration: number) => {
-    if (!duration) return '0m';
-    
-    const minutes = Math.floor(duration / 60);
+  const formatDuration = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
     
     if (hours > 0) {
-      return `${hours}h ${minutes % 60}m`;
+      return `${hours}h ${mins}m`;
     }
-    return `${minutes}m`;
+    return `${mins}m`;
   };
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedView style={styles.header}>
-        <ThemedView>
-          <ThemedText type="title">Welcome Back</ThemedText>
-          <ThemedText style={styles.userName}>{user?.name}</ThemedText>
-        </ThemedView>
-      </ThemedView>
+    <View style={[styles.container, { backgroundColor }]}>
+      <HeaderWithProfile 
+        title="Welcome" 
+        subtitle={user?.name || 'Fitness Enthusiast'} 
+      />
 
-      <ThemedView style={styles.quickActions}>
-        <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: tintColor }]}
-          onPress={handleQuickStart}>
-          <IconSymbol name="play.fill" color="white" size={20} />
-          <ThemedText style={styles.actionButtonText}>Quick Start</ThemedText>
-        </TouchableOpacity>
+      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+        {/* Quick Start Section */}
+        <View style={styles.quickStartSection}>
+          <TouchableOpacity 
+            style={[styles.quickStartButton, { backgroundColor: '#2f95dc' }]}
+            onPress={() => router.push('/workout/start-empty')}>
+            <View style={styles.quickStartContent}>
+              <Text style={styles.quickStartText}>Quick Start Workout</Text>
+              <Text style={styles.quickStartSubtext}>Start tracking right away</Text>
+            </View>
+            <Ionicons name="arrow-forward-circle" size={28} color="white" />
+          </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: '#4A90E2' }]}
-          onPress={() => router.push('/start-workout')}>
-          <IconSymbol name="plus.circle.fill" color="white" size={20} />
-          <ThemedText style={styles.actionButtonText}>New Workout</ThemedText>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: '#50C878' }]}
-          onPress={() => router.push('/templates')}>
-          <IconSymbol name="doc.text.fill" color="white" size={20} />
-          <ThemedText style={styles.actionButtonText}>Templates</ThemedText>
-        </TouchableOpacity>
-      </ThemedView>
-
-      <ThemedView style={styles.section}>
-        <ThemedText type="subtitle">Recent Workouts</ThemedText>
-        
-        {isLoadingWorkouts ? (
-          <ActivityIndicator size="large" color={tintColor} style={styles.loader} />
-        ) : recentWorkouts.length > 0 ? (
-          <FlatList
-            data={recentWorkouts}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.workoutCard}
-                onPress={() => router.push({pathname: `/history/[id]`, params: {id: item.id}})}>
-                <ThemedView style={styles.workoutCardContent}>
-                  <ThemedText style={styles.workoutName}>{item.name}</ThemedText>
-                  <ThemedText style={styles.workoutDate}>{formatDate(item.started_at)}</ThemedText>
-                </ThemedView>
-                
-                {item.duration && (
-                  <ThemedView style={styles.durationBadge}>
-                    <IconSymbol name="timer" size={14} color={textColor} />
-                    <ThemedText style={styles.durationText}>
-                      {formatDuration(item.duration)}
-                    </ThemedText>
-                  </ThemedView>
-                )}
-              </TouchableOpacity>
-            )}
-            style={styles.workoutsList}
-          />
-        ) : (
-          <ThemedView style={styles.emptyState}>
-            <ThemedText style={styles.emptyStateText}>No recent workouts</ThemedText>
-            <TouchableOpacity 
-              style={[styles.startWorkoutButton, { backgroundColor: tintColor }]}
-              onPress={() => router.push('/start-workout')}>
-              <ThemedText style={styles.startWorkoutButtonText}>Start Your First Workout</ThemedText>
+        {/* Recent Workouts */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: textColor }]}>Recent Workouts</Text>
+            <TouchableOpacity onPress={() => router.push('/workout-history')}>
+              <Text style={styles.viewAllText}>View All</Text>
             </TouchableOpacity>
-          </ThemedView>
-        )}
-      </ThemedView>
-    </ThemedView>
+          </View>
+          
+          {recentWorkouts.map((workout) => (
+            <TouchableOpacity
+              key={workout.id}
+              style={[styles.card, { backgroundColor: cardColor }]}
+              onPress={() => router.push(`/workout/details/${workout.id}`)}>
+              <View style={styles.cardContent}>
+                <Text style={[styles.cardTitle, { color: textColor }]}>{workout.name}</Text>
+                <Text style={styles.cardSubtitle}>{formatDate(workout.date)}</Text>
+              </View>
+              
+              <View style={styles.durationBadge}>
+                <Ionicons name="time-outline" size={14} color={textColor} />
+                <Text style={[styles.durationText, { color: textColor }]}>
+                  {formatDuration(workout.duration)}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Templates */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: textColor }]}>Your Templates</Text>
+            <TouchableOpacity onPress={() => router.push('/templates')}>
+              <Text style={styles.viewAllText}>View All</Text>
+            </TouchableOpacity>
+          </View>
+          
+          {templates.map((template) => (
+            <TouchableOpacity
+              key={template.id}
+              style={[styles.card, { backgroundColor: cardColor }]}
+              onPress={() => router.push(`/templates/${template.id}`)}>
+              <View style={styles.cardContent}>
+                <Text style={[styles.cardTitle, { color: textColor }]}>{template.name}</Text>
+              </View>
+              
+              <View style={styles.exerciseCountBadge}>
+                <Text style={styles.exerciseCountText}>
+                  {template.exercises} exercises
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    paddingTop: 60, // Account for status bar
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  userName: {
-    fontSize: 16,
-    opacity: 0.7,
-  },
-  quickActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 24,
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 12,
-    borderRadius: 8,
+  scrollContainer: {
     flex: 1,
-    marginHorizontal: 4,
+    paddingHorizontal: 16,
   },
-  actionButtonText: {
+  quickStartSection: {
+    marginBottom: 24,
+    marginTop: 8,
+  },
+  quickStartButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderRadius: 12,
+  },
+  quickStartContent: {
+    flex: 1,
+  },
+  quickStartText: {
     color: 'white',
+    fontSize: 18,
     fontWeight: 'bold',
-    marginLeft: 8,
-    fontSize: 14,
+  },
+  quickStartSubtext: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    marginTop: 4,
   },
   section: {
-    marginBottom: 20,
+    marginBottom: 24,
   },
-  loader: {
-    marginTop: 20,
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
   },
-  workoutsList: {
-    marginTop: 12,
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
-  workoutCard: {
+  viewAllText: {
+    color: '#2f95dc',
+  },
+  card: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 12,
     marginBottom: 12,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)', // Slight contrast in light mode
-    // For dark mode, we'll rely on the ThemedView background
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  workoutCardContent: {
+  cardContent: {
     flex: 1,
   },
-  workoutName: {
+  cardTitle: {
     fontSize: 16,
     fontWeight: 'bold',
   },
-  workoutDate: {
-    fontSize: 14,
-    opacity: 0.7,
+  cardSubtitle: {
+    color: '#888',
     marginTop: 4,
   },
   durationBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 6,
-    borderRadius: 16,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)', // Subtle background
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
   },
   durationText: {
     fontSize: 12,
     marginLeft: 4,
   },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 30,
+  exerciseCountBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    backgroundColor: 'rgba(47, 149, 220, 0.1)',
   },
-  emptyStateText: {
-    fontSize: 16,
-    opacity: 0.7,
-    marginBottom: 16,
-  },
-  startWorkoutButton: {
-    padding: 12,
-    borderRadius: 8,
-  },
-  startWorkoutButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
+  exerciseCountText: {
+    fontSize: 12,
+    color: '#2f95dc',
   },
 });

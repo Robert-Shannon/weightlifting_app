@@ -5,6 +5,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo } from 'react';
 import 'react-native-reanimated';
+import { Drawer } from 'expo-router/drawer';
+import { Ionicons } from '@expo/vector-icons';
 
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { WorkoutProvider } from '@/context/WorkoutContext';
@@ -65,17 +67,108 @@ export default function RootLayout() {
       <AuthProvider>
         <WorkoutProvider>
           <AuthGuard>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="index" />
-              <Stack.Screen name="(auth)" />
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="history" />
-              <Stack.Screen name="+not-found" />
-            </Stack>
+            <RootLayoutNav />
           </AuthGuard>
         </WorkoutProvider>
       </AuthProvider>
       <StatusBar style="auto" />
     </ThemeProvider>
+  );
+}
+
+function RootLayoutNav() {
+  const { isAuthenticated } = useAuth();
+  const colorScheme = useColorScheme();
+  
+  // For authenticated users, show drawer navigation
+  if (isAuthenticated) {
+    return (
+      <Drawer
+        screenOptions={{
+          headerShown: false,
+          drawerStyle: {
+            backgroundColor: colorScheme === 'dark' ? '#121212' : '#f8f8f8',
+          },
+          drawerActiveTintColor: '#2f95dc',
+          drawerInactiveTintColor: colorScheme === 'dark' ? '#aaa' : '#666',
+        }}>
+        <Drawer.Screen
+          name="(tabs)"
+          options={{
+            headerShown: false,
+            drawerLabel: 'Home',
+            drawerIcon: ({ color, size }) => (
+              <Ionicons name="home" size={size} color={color} />
+            ),
+          }}
+        />
+        <Drawer.Screen
+          name="profile"
+          options={{
+            headerShown: true,
+            headerTitle: 'Profile',
+            drawerLabel: 'Profile',
+            drawerIcon: ({ color, size }) => (
+              <Ionicons name="person" size={size} color={color} />
+            ),
+          }}
+        />
+        <Drawer.Screen
+          name="progress"
+          options={{
+            headerShown: true,
+            headerTitle: 'Progress',
+            drawerLabel: 'Progress',
+            drawerIcon: ({ color, size }) => (
+              <Ionicons name="stats-chart" size={size} color={color} />
+            ),
+          }}
+        />
+        <Drawer.Screen
+          name="workout-history"
+          options={{
+            headerShown: true,
+            headerTitle: 'Workout History',
+            drawerLabel: 'Workout History',
+            drawerIcon: ({ color, size }) => (
+              <Ionicons name="time" size={size} color={color} />
+            ),
+          }}
+        />
+        <Drawer.Screen
+          name="settings"
+          options={{
+            headerShown: true,
+            headerTitle: 'Settings',
+            drawerLabel: 'Settings',
+            drawerIcon: ({ color, size }) => (
+              <Ionicons name="settings" size={size} color={color} />
+            ),
+          }}
+        />
+        
+        {/* Keep these non-drawer screens available */}
+        <Drawer.Screen
+          name="history"
+          options={{
+            drawerItemStyle: { display: 'none' }
+          }}
+        />
+        <Drawer.Screen
+          name="+not-found"
+          options={{
+            drawerItemStyle: { display: 'none' }
+          }}
+        />
+      </Drawer>
+    );
+  }
+  
+  // For unauthenticated users, show regular stack navigation
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="+not-found" />
+    </Stack>
   );
 }

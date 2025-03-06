@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { HeaderWithProfile } from '@/components/HeaderWithProfile';
 import { useAuth } from '@/context/AuthContext';
+import { Platform } from 'react-native';
 
 export default function MoreScreen() {
   const { logout } = useAuth();
@@ -22,21 +23,29 @@ export default function MoreScreen() {
   const cardColor = colorScheme === 'dark' ? '#1e1e1e' : '#fff';
   
   const handleLogout = () => {
-    Alert.alert(
-      "Logout",
-      "Are you sure you want to log out?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel"
-        },
-        {
-          text: "Logout",
-          style: "destructive",
-          onPress: () => logout()
-        }
-      ]
-    );
+    if (Platform.OS === 'web') {
+      // For web, use a direct confirmation instead of Alert
+      if (window.confirm("Are you sure you want to log out?")) {
+        logout();
+      }
+    } else {
+      // Keep your current Alert for iOS
+      Alert.alert(
+        "Logout",
+        "Are you sure you want to log out?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel"
+          },
+          {
+            text: "Logout",
+            style: "destructive",
+            onPress: () => logout()
+          }
+        ]
+      );
+    }
   };
 
   return (
@@ -209,6 +218,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 8,
     marginBottom: 32,
+    // Add this for better cross-platform support
+    cursor: Platform.OS === 'web' ? 'pointer' : 'default',
   },
   logoutText: {
     color: '#FF3B30',

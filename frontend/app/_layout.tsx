@@ -78,96 +78,24 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const { isAuthenticated } = useAuth();
-  const colorScheme = useColorScheme();
   
-  // For authenticated users, show drawer navigation using only routes inside the (drawer) folder
-  if (isAuthenticated) {
+  if (!isAuthenticated) {
     return (
-      <Drawer
-        screenOptions={{
-          headerShown: false,
-          drawerStyle: {
-            backgroundColor: colorScheme === 'dark' ? '#121212' : '#f8f8f8',
-          },
-          drawerActiveTintColor: '#2f95dc',
-          drawerInactiveTintColor: colorScheme === 'dark' ? '#aaa' : '#666',
-        }}>
-        <Drawer.Screen
-          name="index"
-          options={{
-            headerShown: false,
-            drawerLabel: 'Home',
-            drawerIcon: ({ color, size }) => (
-              <Ionicons name="home" size={size} color={color} />
-            ),
-          }}
-        />
-        <Drawer.Screen
-          name="(drawer)/profile"
-          options={{
-            headerShown: true,
-            headerTitle: 'Profile',
-            drawerLabel: 'Profile',
-            drawerIcon: ({ color, size }) => (
-              <Ionicons name="person" size={size} color={color} />
-            ),
-          }}
-        />
-        <Drawer.Screen
-          name="(drawer)/progress"
-          options={{
-            headerShown: true,
-            headerTitle: 'Progress',
-            drawerLabel: 'Progress',
-            drawerIcon: ({ color, size }) => (
-              <Ionicons name="stats-chart" size={size} color={color} />
-            ),
-          }}
-        />
-        <Drawer.Screen
-          name="(drawer)/workout-history"
-          options={{
-            headerShown: true,
-            headerTitle: 'Workout History',
-            drawerLabel: 'Workout History',
-            drawerIcon: ({ color, size }) => (
-              <Ionicons name="time" size={size} color={color} />
-            ),
-          }}
-        />
-        <Drawer.Screen
-          name="(drawer)/settings"
-          options={{
-            headerShown: true,
-            headerTitle: 'Settings',
-            drawerLabel: 'Settings',
-            drawerIcon: ({ color, size }) => (
-              <Ionicons name="settings" size={size} color={color} />
-            ),
-          }}
-        />
-        
-        {/* Keep these non-drawer screens available */}
-        <Drawer.Screen
-          name="history"
-          options={{
-            drawerItemStyle: { display: 'none' }
-          }}
-        />
-        <Drawer.Screen
-          name="+not-found"
-          options={{
-            drawerItemStyle: { display: 'none' }
-          }}
-        />
-      </Drawer>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="+not-found" />
+      </Stack>
     );
   }
-  
-  // For unauthenticated users, show regular stack navigation
+
+  // For authenticated users, make drawer navigation the primary navigation
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="(drawer)" />
+      <Stack.Screen name="history" />
+      <Stack.Screen name="progress" />
+      <Stack.Screen name="templates" />
+      <Stack.Screen name="workout" />
       <Stack.Screen name="+not-found" />
     </Stack>
   );

@@ -38,7 +38,8 @@ export default function RootPage() {
 
   // Redirect based on authentication state
   if (isAuthenticated) {
-    return <Redirect href="/(tabs)" />;
+    // Redirect to drawer instead of tabs
+    return <Redirect href="/(drawer)" />;
   } else {
     return <Redirect href="/login" />;
   }

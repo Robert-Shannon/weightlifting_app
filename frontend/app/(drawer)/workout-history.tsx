@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { HeaderWithProfile } from '@/components/HeaderWithProfile';
 
 interface WorkoutSession {
   id: string;
@@ -158,6 +159,7 @@ export default function WorkoutHistoryScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
+        <HeaderWithProfile title="Workout History" />
       <View style={styles.filterContainer}>
         <View style={[styles.filterButtons, { backgroundColor: 'rgba(0, 0, 0, 0.05)' }]}>
           <TouchableOpacity

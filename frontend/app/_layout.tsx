@@ -80,7 +80,7 @@ function RootLayoutNav() {
   const { isAuthenticated } = useAuth();
   const colorScheme = useColorScheme();
   
-  // For authenticated users, show drawer navigation
+  // For authenticated users, show drawer navigation using only routes inside the (drawer) folder
   if (isAuthenticated) {
     return (
       <Drawer
@@ -93,7 +93,7 @@ function RootLayoutNav() {
           drawerInactiveTintColor: colorScheme === 'dark' ? '#aaa' : '#666',
         }}>
         <Drawer.Screen
-          name="(tabs)"
+          name="index"
           options={{
             headerShown: false,
             drawerLabel: 'Home',
@@ -103,7 +103,7 @@ function RootLayoutNav() {
           }}
         />
         <Drawer.Screen
-          name="profile"
+          name="(drawer)/profile"
           options={{
             headerShown: true,
             headerTitle: 'Profile',
@@ -114,7 +114,7 @@ function RootLayoutNav() {
           }}
         />
         <Drawer.Screen
-          name="progress"
+          name="(drawer)/progress"
           options={{
             headerShown: true,
             headerTitle: 'Progress',
@@ -125,7 +125,7 @@ function RootLayoutNav() {
           }}
         />
         <Drawer.Screen
-          name="workout-history"
+          name="(drawer)/workout-history"
           options={{
             headerShown: true,
             headerTitle: 'Workout History',
@@ -136,7 +136,7 @@ function RootLayoutNav() {
           }}
         />
         <Drawer.Screen
-          name="settings"
+          name="(drawer)/settings"
           options={{
             headerShown: true,
             headerTitle: 'Settings',

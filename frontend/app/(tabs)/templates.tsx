@@ -102,6 +102,7 @@ export default function TemplatesScreen() {
             <Text
               style={[
                 styles.tabText,
+                { color: textColor },
                 activeTab === 'my-templates' && styles.activeTabText
               ]}>
               My Templates
@@ -117,6 +118,7 @@ export default function TemplatesScreen() {
             <Text
               style={[
                 styles.tabText,
+                { color: textColor },
                 activeTab === 'sample-templates' && styles.activeTabText
               ]}>
               Sample Templates

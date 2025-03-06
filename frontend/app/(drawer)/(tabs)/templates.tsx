@@ -1,20 +1,27 @@
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
+  FlatList,
+  ActivityIndicator,
+  Alert,
   View,
   Text,
-  FlatList,
-  Alert,
 } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { HeaderWithProfile } from '@/components/HeaderWithProfile';
+import { Template, templateService } from '@/services/template.service';
+import { useAuth } from '@/context/AuthContext';
 
 export default function TemplatesScreen() {
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
+  
   const colorScheme = useColorScheme();
   const textColor = colorScheme === 'dark' ? '#fff' : '#000';
   const backgroundColor = colorScheme === 'dark' ? '#121212' : '#f8f8f8';
@@ -22,70 +29,101 @@ export default function TemplatesScreen() {
   
   // State for tab selection
   const [activeTab, setActiveTab] = useState<'my-templates' | 'sample-templates'>('my-templates');
-  
-  // Dummy template data
-  const myTemplates = [
-    { id: '1', name: 'Push Workout', description: 'Chest, shoulders, and triceps', exercises: 8 },
-    { id: '2', name: 'Pull Workout', description: 'Back and biceps focused workout', exercises: 7 },
-    { id: '3', name: 'Leg Workout', description: 'Full lower body routine', exercises: 6 },
-    { id: '4', name: 'Full Body', description: 'Complete full body workout', exercises: 12 },
-  ];
-  
-  const sampleTemplates = [
-    { id: '1', name: '5x5 Strength', description: 'Classic strength building program', exercises: 5 },
-    { id: '2', name: 'PPL Routine', description: 'Push Pull Legs split for hypertrophy', exercises: 18 },
-    { id: '3', name: 'HIIT Circuit', description: 'High intensity interval training', exercises: 8 },
-  ];
 
-  const templates = activeTab === 'my-templates' ? myTemplates : sampleTemplates;
+  const fetchTemplates = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      console.log('Fetching templates...');
+      const data = await templateService.getTemplates();
+      console.log('Templates fetched:', data);
+      setTemplates(data);
+    } catch (error) {
+      console.error('Failed to fetch templates:', error);
+      setError('Failed to load workout templates. Please try again.');
+      // Clear templates on error
+      setTemplates([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const handleDeleteTemplate = (id: string, name: string) => {
+  useEffect(() => {
+    fetchTemplates();
+  }, []);
+
+  const handleCreateTemplate = () => {
+    router.push('/templates/create');
+  };
+
+  const handleDeleteTemplate = async (id: string, name: string) => {
     Alert.alert(
-      "Delete Template",
+      'Delete Template',
       `Are you sure you want to delete "${name}"?`,
       [
         {
-          text: "Cancel",
-          style: "cancel"
+          text: 'Cancel',
+          style: 'cancel',
         },
-        { 
-          text: "Delete", 
-          style: "destructive",
-          onPress: () => {
-            // Handle template deletion here
-            console.log(`Deleting template ${id}`);
-          }
-        }
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await templateService.deleteTemplate(id);
+              // Remove template from state
+              setTemplates(templates.filter(t => t.id !== id));
+            } catch (error) {
+              console.error('Failed to delete template:', error);
+              Alert.alert('Error', 'Failed to delete template');
+            }
+          },
+        },
       ]
     );
   };
 
   const handleUseTemplate = (id: string) => {
-    // For sample templates, copy to my templates
-    Alert.alert(
-      "Use Template",
-      "Would you like to save this template to your collection or start a workout with it?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel"
-        },
-        {
-          text: "Save to My Templates",
-          onPress: () => {
-            // Handle saving sample template to user templates
-            console.log(`Saving template ${id} to my templates`);
+    if (activeTab === 'sample-templates') {
+      // For sample templates, ask if they want to save or use directly
+      Alert.alert(
+        "Use Template",
+        "Would you like to save this template to your collection or start a workout with it?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel"
+          },
+          {
+            text: "Save to My Templates",
+            onPress: () => {
+              // Handle copying sample template to user templates
+              Alert.alert("Feature coming soon");
+            }
+          },
+          {
+            text: "Start Workout",
+            onPress: () => {
+              router.push(`/workout/start-template?id=${id}`);
+            }
           }
-        },
-        {
-          text: "Start Workout",
-          onPress: () => {
-            router.push(`/workout/start-template?id=${id}`);
-          }
-        }
-      ]
-    );
+        ]
+      );
+    } else {
+      // For user's own templates, open the template details
+      router.push(`/templates/${id}`);
+    }
   };
+
+  // Sample templates data - in a real app, this would come from the API
+  const sampleTemplates = [
+    { id: 's1', name: '5x5 Strength', description: 'Classic strength building program', exercise_count: 5 },
+    { id: 's2', name: 'PPL Routine', description: 'Push Pull Legs split for hypertrophy', exercise_count: 18 },
+    { id: 's3', name: 'HIIT Circuit', description: 'High intensity interval training', exercise_count: 8 },
+  ];
+
+  // Choose which templates to display based on active tab
+  const displayTemplates = activeTab === 'my-templates' ? templates : sampleTemplates;
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
@@ -132,28 +170,41 @@ export default function TemplatesScreen() {
           <View style={styles.createButtonContainer}>
             <TouchableOpacity
               style={styles.createButton}
-              onPress={() => router.push('/templates/create')}>
+              onPress={handleCreateTemplate}>
               <Ionicons name="add" size={20} color="white" />
               <Text style={styles.createButtonText}>Create Template</Text>
             </TouchableOpacity>
           </View>
         )}
         
-        {templates.length > 0 ? (
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#2f95dc" style={styles.loader} />
+        ) : error ? (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{error}</Text>
+            <TouchableOpacity
+              style={styles.retryButton}
+              onPress={fetchTemplates}>
+              <Text style={styles.retryButtonText}>Retry</Text>
+            </TouchableOpacity>
+          </View>
+        ) : displayTemplates.length > 0 ? (
           <FlatList
-            data={templates}
+            data={displayTemplates}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <View style={[styles.templateCard, { backgroundColor: cardColor }]}>
                 <TouchableOpacity
                   style={styles.templateCardContent}
-                  onPress={() => router.push(`/templates/${item.id}`)}>
+                  onPress={() => handleUseTemplate(item.id)}>
                   <Text style={[styles.templateName, { color: textColor }]}>{item.name}</Text>
-                  <Text style={styles.templateDescription}>{item.description}</Text>
+                  <Text style={styles.templateDescription}>{item.description || 'No description'}</Text>
                   <View style={styles.templateMetadata}>
                     <View style={styles.exerciseCountBadge}>
                       <Ionicons name="barbell-outline" size={14} color="#2f95dc" />
-                      <Text style={styles.exerciseCountText}>{item.exercises} exercises</Text>
+                      <Text style={styles.exerciseCountText}>
+                        {item.exercise_count || (item.exercises ? item.exercises.length : 0)} exercises
+                      </Text>
                     </View>
                   </View>
                 </TouchableOpacity>
@@ -194,7 +245,7 @@ export default function TemplatesScreen() {
                 </Text>
                 <TouchableOpacity
                   style={styles.createTemplateButton}
-                  onPress={() => router.push('/templates/create')}>
+                  onPress={handleCreateTemplate}>
                   <Text style={styles.createTemplateButtonText}>Create Your First Template</Text>
                 </TouchableOpacity>
               </>
@@ -346,6 +397,30 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   createTemplateButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  loader: {
+    marginTop: 60,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  errorText: {
+    color: '#FF3B30',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  retryButton: {
+    backgroundColor: '#2f95dc',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  retryButtonText: {
     color: 'white',
     fontWeight: 'bold',
   },

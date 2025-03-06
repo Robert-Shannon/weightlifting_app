@@ -1,220 +1,230 @@
 import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
+  TextInput,
   TouchableOpacity,
-  FlatList,
-  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   Alert,
+  SafeAreaView,
+  View,
+  Text,
 } from 'react-native';
-
+import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import { Colors } from '@/constants/Colors';
+import { TemplateCreateData, templateService } from '@/services/template.service';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { Template, templateService } from '@/services/template.service';
 
-export default function TemplatesScreen() {
-  const [templates, setTemplates] = useState<Template[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+export default function CreateTemplateScreen() {
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const colorScheme = useColorScheme() ?? 'light';
 
-  const fetchTemplates = async () => {
+  const textColor = colorScheme === 'dark' ? '#fff' : '#000';
+  const backgroundColor = colorScheme === 'dark' ? '#121212' : '#f8f8f8';
+  const cardColor = colorScheme === 'dark' ? '#1e1e1e' : '#fff';
+  const inputBgColor = colorScheme === 'dark' ? '#333' : '#f5f5f5';
+  const inputColor = colorScheme === 'dark' ? '#fff' : '#000';
+  const placeholderColor = colorScheme === 'dark' ? '#aaa' : '#777';
+  
+  const handleCreate = async () => {
+    // Validate form
+    if (!name.trim()) {
+      Alert.alert('Error', 'Please enter a template name');
+      return;
+    }
+    
+    const templateData: TemplateCreateData = {
+      name: name.trim(),
+      description: description.trim(),
+    };
+    
     try {
-      setIsLoading(true);
-      const data = await templateService.getTemplates();
-      setTemplates(data);
+      setIsSubmitting(true);
+      console.log('Creating template:', templateData);
+      
+      const createdTemplate = await templateService.createTemplate(templateData);
+      console.log('Template created:', createdTemplate);
+      
+      Alert.alert(
+        'Success',
+        'Template created successfully!',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              // Navigate to the template detail screen
+              router.replace(`/templates/${createdTemplate.id}`);
+            },
+          },
+        ]
+      );
     } catch (error) {
-      console.error('Failed to fetch templates:', error);
-      Alert.alert('Error', 'Failed to load workout templates');
+      console.error('Failed to create template:', error);
+      Alert.alert(
+        'Error',
+        'Failed to create template. Please try again.'
+      );
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
-
-  useEffect(() => {
-    fetchTemplates();
-  }, []);
-
-  const handleCreateTemplate = () => {
-    router.push('/templates/create');
-  };
-
-  const handleDeleteTemplate = async (id: string, name: string) => {
-    Alert.alert(
-      'Delete Template',
-      `Are you sure you want to delete "${name}"?`,
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await templateService.deleteTemplate(id);
-              // Remove template from state
-              setTemplates(templates.filter(t => t.id !== id));
-            } catch (error) {
-              console.error('Failed to delete template:', error);
-              Alert.alert('Error', 'Failed to delete template');
-            }
-          },
-        },
-      ]
-    );
-  };
-
-  const renderItem = ({ item }: { item: Template }) => (
-    <TouchableOpacity
-      style={styles.templateCard}
-      onPress={() => router.push(`/templates/${item.id}`)}>
-      <ThemedView style={styles.templateContent}>
-        <ThemedText style={styles.templateName}>{item.name}</ThemedText>
-        <ThemedText style={styles.templateDescription} numberOfLines={2}>
-          {item.description || 'No description'}
-        </ThemedText>
-        <ThemedView style={styles.templateFooter}>
-          <ThemedView style={styles.exerciseCount}>
-            <IconSymbol name="list.bullet" size={16} color={Colors[colorScheme].text} />
-            <ThemedText style={styles.exerciseCountText}>
-              {item.exercise_count || 0} exercises
-            </ThemedText>
-          </ThemedView>
-        </ThemedView>
-      </ThemedView>
-      
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={() => handleDeleteTemplate(item.id, item.name)}>
-        <IconSymbol name="trash" size={20} color="#FF3B30" />
-      </TouchableOpacity>
-    </TouchableOpacity>
-  );
-
+  
   return (
-    <ThemedView style={styles.container}>
-      <ThemedView style={styles.header}>
-        <ThemedText type="title">Workout Templates</ThemedText>
-        <TouchableOpacity
-          style={styles.createButton}
-          onPress={handleCreateTemplate}>
-          <IconSymbol name="plus.circle.fill" size={24} color={Colors[colorScheme].tint} />
-        </TouchableOpacity>
-      </ThemedView>
-
-      {isLoading ? (
-        <ActivityIndicator size="large" color={Colors[colorScheme].tint} style={styles.loader} />
-      ) : templates.length > 0 ? (
-        <FlatList
-          data={templates}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-          contentContainerStyle={styles.listContent}
-        />
-      ) : (
-        <ThemedView style={styles.emptyState}>
-          <ThemedText style={styles.emptyStateText}>
-            No workout templates yet
-          </ThemedText>
+    <SafeAreaView style={[styles.container, { backgroundColor }]}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardAvoid}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.header}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => router.back()}>
+              <Ionicons name="arrow-back" size={24} color={textColor} />
+            </TouchableOpacity>
+            <Text style={[styles.headerTitle, { color: textColor }]}>Create Template</Text>
+          </View>
+          
+          <View style={styles.formContainer}>
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: textColor }]}>Template Name *</Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  { backgroundColor: inputBgColor, color: inputColor }
+                ]}
+                placeholder="Enter template name"
+                placeholderTextColor={placeholderColor}
+                value={name}
+                onChangeText={setName}
+                maxLength={50}
+              />
+            </View>
+            
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: textColor }]}>Description (Optional)</Text>
+              <TextInput
+                style={[
+                  styles.textArea,
+                  { backgroundColor: inputBgColor, color: inputColor }
+                ]}
+                placeholder="Describe your workout template"
+                placeholderTextColor={placeholderColor}
+                value={description}
+                onChangeText={setDescription}
+                multiline
+                textAlignVertical="top"
+                maxLength={200}
+              />
+            </View>
+            
+            <View style={styles.instructionsContainer}>
+              <Ionicons name="information-circle-outline" size={20} color="#2f95dc" />
+              <Text style={styles.instructionsText}>
+                After creating the template, you'll be able to add exercises and organize them.
+              </Text>
+            </View>
+          </View>
+          
           <TouchableOpacity
-            style={styles.createTemplateButton}
-            onPress={handleCreateTemplate}>
-            <ThemedText style={styles.createTemplateButtonText}>
-              Create Your First Template
-            </ThemedText>
+            style={[
+              styles.createButton,
+              isSubmitting && styles.disabledButton
+            ]}
+            onPress={handleCreate}
+            disabled={isSubmitting}>
+            <Text style={styles.createButtonText}>
+              {isSubmitting ? 'Creating...' : 'Create Template'}
+            </Text>
           </TouchableOpacity>
-        </ThemedView>
-      )}
-    </ThemedView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    paddingTop: 60,
+  },
+  keyboardAvoid: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    padding: 16,
+    paddingTop: 50, // Adjust based on your status bar
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 24,
   },
-  createButton: {
+  backButton: {
+    marginRight: 16,
     padding: 8,
   },
-  listContent: {
-    paddingBottom: 20,
-  },
-  templateCard: {
-    flexDirection: 'row',
-    borderRadius: 12,
-    marginBottom: 16,
-    padding: 16,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-  },
-  templateContent: {
-    flex: 1,
-  },
-  templateName: {
-    fontSize: 18,
+  headerTitle: {
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 6,
   },
-  templateDescription: {
-    fontSize: 14,
-    opacity: 0.7,
-    marginBottom: 12,
-  },
-  templateFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  exerciseCount: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  exerciseCountText: {
-    fontSize: 12,
-    marginLeft: 4,
-  },
-  deleteButton: {
-    padding: 8,
-  },
-  loader: {
+  formContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginBottom: 24,
   },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
+  inputGroup: {
+    marginBottom: 20,
   },
-  emptyStateText: {
+  label: {
     fontSize: 16,
-    opacity: 0.7,
-    marginBottom: 16,
-    textAlign: 'center',
+    fontWeight: '500',
+    marginBottom: 8,
   },
-  createTemplateButton: {
-    backgroundColor: Colors.light.tint,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+  input: {
+    height: 50,
     borderRadius: 8,
+    paddingHorizontal: 16,
   },
-  createTemplateButtonText: {
+  textArea: {
+    height: 120,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
+  },
+  instructionsContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: 'rgba(47, 149, 220, 0.1)',
+    borderRadius: 8,
+    padding: 16,
+    marginTop: 8,
+  },
+  instructionsText: {
+    flex: 1,
+    marginLeft: 12,
+    color: '#2f95dc',
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  createButton: {
+    backgroundColor: '#2f95dc',
+    height: 56,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 'auto',
+  },
+  disabledButton: {
+    opacity: 0.7,
+  },
+  createButtonText: {
     color: 'white',
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });

@@ -161,7 +161,7 @@ def import_exercises_from_csv(db: Session, file: UploadFile):
             for key, value in row.items():
                 clean_key = key.strip().lower().replace(' ', '_')
                 if clean_key in [
-                    'name', 'target_muscle_group', 'short', 'youtube_demonstration',
+                    'name', 'target_muscle_group', 'short_youtube_demonstration',
                     'in_depth_youtube_explanation', 'difficulty_level', 'prime_mover_muscle',
                     'secondary_muscle', 'tertiary_muscle', 'primary_equipment',
                     'secondary_equipment', 'posture', 'single_or_double_arm',

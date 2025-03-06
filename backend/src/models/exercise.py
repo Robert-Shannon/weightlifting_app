@@ -12,8 +12,7 @@ class Exercise(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String, nullable=False, index=True)
-    short = Column(String, nullable=True)
-    youtube_demonstration = Column(String, nullable=True)
+    short_youtube_demonstration = Column(String, nullable=True)
     in_depth_youtube_explanation = Column(String, nullable=True)
     difficulty_level = Column(String, nullable=True)
     target_muscle_group = Column(String, nullable=False, index=True)

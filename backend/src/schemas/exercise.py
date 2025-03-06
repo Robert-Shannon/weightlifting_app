@@ -6,8 +6,7 @@ from datetime import datetime
 class ExerciseBase(BaseModel):
     name: str
     target_muscle_group: str
-    short: Optional[str] = None
-    youtube_demonstration: Optional[str] = None
+    short_youtube_demonstration: Optional[str] = None
     in_depth_youtube_explanation: Optional[str] = None
     difficulty_level: Optional[str] = None
     prime_mover_muscle: Optional[str] = None
